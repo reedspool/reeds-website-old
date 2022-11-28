@@ -1,5 +1,6 @@
 import { PageProps } from "../renderer/types";
-import { pages } from "./getBlogPages";
+/* import { pages } from "./getBlogPages"; */
+import { pages } from "./manualBlogPages";
 export const Page: React.FC<PageProps> = () =>
     <article className="cpnt-blog-article">
         <h1>Reed's Website</h1>
