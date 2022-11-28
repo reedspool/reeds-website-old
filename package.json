@@ -1,0 +1,23 @@
+{
+  "name": "reeds-website",
+  "version": "1.0.0",
+  "description": "",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "initialize": "npm install && npm run all:install",
+    "all:install": "npm-recursive-install",
+    "watch:dev": "NODE_OPTIONS='-r tsconfig-paths/register' netlify dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^4.3.5",
+    "netlify-cli": "^12.0.11",
+    "recursive-install": "^1.4.0",
+    "tsconfig-paths": "^4.1.0"
+  }
+}

@@ -1,0 +1,103 @@
+import { Link } from "../../renderer/Link"
+
+export const documentProps = {
+type: 'post',
+title: 'My Fresh Website',
+discussionUrl: 'https://www.reddit.com/r/reedswebsite/comments/xmnrq4/my_fresh_website/',
+publishDate: '2022-09-23T12:00:00.000Z',
+addenda :
+[
+{
+title: 'Errata 1',
+date: '2022-10-18T12:00:00.000Z',
+content:
+`
+I erroneously had missing.css's version listed as \`v1.0.0\`. Deniz, its creator, let me know that it was actually just \`v0.1.0\`. I was too excited.
+`
+},
+{
+title: 'Rewrite',
+date: '2022-11-25T12:00:00.000Z',
+content:
+`
+Updated to reflect site rewrite from Eleventy to \`vite-plugin-ssr\`.
+`
+}
+]
+};
+
+This site is my comfy place on the great wide web. I hope you feel welcome here. If you do not for any reason, please let me know.
+
+So far, this site primarily houses articles I write. I hope to make more additions to this web home slowly.
+
+## Goals
+
+My goal isn't to make the coolest or hottest website. Room temperature is fine for me.
+
+I want my site to welcome visitors warmly, but I also want to reduce any friction for me as I enhance, maintain, and redesign it. I don't know how to make a perfect website for me or my visitors, so I experiment. I pick tools I want to play with, and hopefully I find some which are comfortable to live in.
+
+## History
+
+Because I use this site as a test bed for various tools, I change how the site is built sometimes.
+
+When I first began I used:
+
+- <Link href="https://github.com/11ty/eleventy">Eleventy</Link> for site generation,
+- <Link href="https://www.markdownguide.org/">Markdown</Link> for authoring,
+- <Link href="https://missing.style/">missing.css</Link> for basic styling, and
+- <Link href="https://ejs.co/">EJS</Link> for HTML templates.
+
+After living in this tech stack for a few months, I had some frustrations which led me to replace each one of the above tools.
+
+- I replaced EJS with React & JSX
+- I enhanced Markdown with MDX
+- I replaced Eleventy with Vite and `vite-plugin-ssr`
+- I replaced missing.css with Tailwind and custom CSS
+
+### Replacing EJS with React & JSX
+
+I have worked in React a lot, but I don't enjoy it. I might expand on this in a future article, but in brief, React feels too complicated. Its Elm architecture does not feel like a good fit for 99% of what I want to do in websites.
+
+That is why I surprised myself when I found that I enjoy React & JSX for static HTML templates. The Elm architecture which drives re-rendering, state changes, and behavior for React is only apparent on the front-end. Without all of that stuff, React on the server side is great!
+
+Below is a comparison between my experience with EJS versus React & JSX. Some of these notes are React specific, some of them apply to all JSX. I haven't investigated other "back-ends" for JSX other than React because it fits my use-case, but I bet most of them would work well.
+
+First, the upsides of React & JSX:
+
+- JSX uses JS's powerful, standard import syntax instead of EJS's custom file includes
+- Overall, EJS is terrible to debug and JSX is pretty good. E.g. JSX error messages point to the component whereas EJS messages are often incomprehensible
+- JSX custom components look like built-in elements except for the easy to identify capital first letter
+- EJS has no concept of composition, layout, "content blocks" or component children which are all powerful tools for making a flexible site and component library. JSX can do all of this.
+- With Typescript and JSX, you get type checking, hints, autocomplete, etc, for React's elements and your own custom components. EJS is a blank box with no tooling - it even confuses HTML tools.
+
+Now the downsides to React & JSX.
+
+- EJS is dead simple to implement.
+- JSX requires a preprocessor transform into JS. I already use other preprocessors, namely Typescript and Tailwind via Vite, so this was not a lift for me
+- React spits out warnings which do not apply to my use case. E.g. that elements in a list require "key" values and inputs must have an "onChange" handler. These do not apply when React is not used for behavior. I cannot figure out how to disable these warnings.
+- React doesn't like unknown attributes on elements, so it warns on hyperscript and htmx properties. I don't mind this but I would love to get type checking, spell checking, and auto complete for these attributes
+- JSX has some strange HTML idioms, such as "className" instead of "class", but it's an easy find-and-replace to switch. This hasn't bothered me but should be noted.
+
+Interactivity on the website comes not from React but from <Link href="https://hyperscript.org">hyperscript</Link>, <Link href="https://htmx.org">htmx</Link>, and a pinch of custom JavaScript. Thank you <Link href="https://bigsky.software">Big Sky Software</Link>.
+
+### Enhancing Markdown with MDX
+
+When I moved to React I switched to <Link href="https://mdxjs.com/">MDX</Link> to enhance my articles' Markdown. For my current set of articles, this offered no benefit in the body text. However MDX's JS export syntax lead me to add more complex metadata to each post, which feels like a big win.
+
+My opinion on MDX is not well-formed. It feels like a lateral move at this moment as if I'm not exploiting MDX's maximum powers.
+
+### Replacing Eleventy with Vite
+
+I replaced Eleventy with <Link href="https://vitejs.dev/">Vite</Link> and <Link href="https://vite-plugin-ssr.com">Brillout's `vite-plugin-ssr`</Link>. `vite-plugin-ssr`'s "HTML Only" static generation allowed me to use React for static site generation, but load no React on the front-end. No hydration.
+
+## Replacing missing.css with Tailwind
+
+Missing CSS was perfect for getting my site off the ground quickly, but I wanted to customize and play with my site's appearance more. I knew I wanted to replace Missing CSS with <Link href="https://tailwindcss.com/">Tailwind</Link>. I would have to re-style the whole site, but it was worth it to make it more custom.
+
+I had recently read <Link href="https://ryanmulligan.dev/blog/layout-breakouts/">Layout Breakouts by Ryan Mulligan</Link> and wanted to try it. It worked great!
+
+## Open
+
+This site's source code including all content is public on my <Link href="https://github.com/reedspool/reeds-website">GitHub</Link>.
+
+If you have any comments or questions about this site, I would love to hear them!

@@ -1,0 +1,282 @@
+@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch&family=Jost&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Begin modifications to missing.style */
+
+html {
+  font-size: 20px;
+  line-height: 1.85em;
+  height: 100%;
+
+  --primaryfg-rgb: 66 22 22;
+  --primarybg-rgb: 227 227 243;
+  --flashyfg-rgb: 26 108 40;
+  --flashybg-rgb: 200 213 212;
+
+  --flashy-font: "Chakra Petch", sans-serif;
+  --prose-font: "Jost", sans-serif;
+
+  --banner-gradient: linear-gradient(
+    to right,
+    rgb(var(--flashyfg-rgb)),
+    rgb(var(--flashybg-rgb)) 100px
+  );
+
+  @apply flex flex-col items-center;
+  @apply text-primaryfg bg-primarybg;
+  @apply font-prose;
+}
+
+body {
+  height: 100%;
+  width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-flashy;
+}
+
+h1 {
+  @apply text-3xl;
+}
+
+h2 {
+  @apply text-2xl;
+}
+
+h3 {
+  @apply text-xl;
+}
+
+a {
+  @apply underline decoration-gray-500;
+
+  &[href^="http"],
+  &[href^="mailto"] {
+    @apply decoration-blue-600 text-blue-600;
+  }
+}
+
+header,
+footer {
+  /* The translate on the box titlebar covers the navbar unless this */
+  z-index: 1;
+}
+
+header {
+  justify-content: flex-start;
+  background: var(--banner-gradient);
+}
+
+header.sticky {
+  top: 0px;
+  filter: drop-shadow(0rem -1.8rem 2rem rgb(var(--flashybg-rgb)));
+}
+
+footer {
+  position: static;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-block-end: none;
+
+  margin-block-start: calc(var(--gap));
+  margin-block-end: 0;
+
+  background: var(--banner-gradient);
+}
+
+nav ul,
+nav ol {
+  list-style: none;
+  padding-left: 0;
+}
+
+ol,
+ul {
+  padding-left: 0.2rem;
+}
+
+ul {
+  @apply list-disc;
+
+  padding-left: 1.4rem;
+}
+
+ol {
+  list-style: none;
+  counter-reset: counter-function;
+}
+
+ol li {
+  counter-increment: counter-function;
+  margin: 0.1rem;
+  display: flex;
+  align-items: center; /* adjust as needed */
+}
+
+ol li::before {
+  content: counter(counter-function) ".";
+  flex: 0 0 1.8rem;
+  text-align: left;
+  margin-right: 0rem; /* adjust as needed */
+}
+
+button,
+input[type="submit"] {
+  cursor: pointer;
+}
+
+textarea,
+input {
+  @apply bg-primarybg;
+}
+
+textarea {
+  @apply py-sm px-md;
+}
+
+input {
+  @apply py-sm px-md;
+}
+
+blockquote {
+  @apply bg-gray-300 text-gray-700 p-md mx-md my-xl italic;
+
+  & p {
+    @apply m-0 p-0;
+  }
+}
+
+/* Components */
+
+.cpnt-logo {
+  --logo-size: 1.4rem;
+  display: inline-block;
+
+  height: var(--logo-size);
+  width: var(--logo-size);
+  fill: rgb(var(--primaryfg-rgb));
+  margin-block-start: calc(var(--logo-size) - 1.7rem);
+}
+
+a:hover .cpnt-logo {
+  text-decoration: underline;
+}
+
+.cpnt-comment-start {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  @apply bg-primaryfg text-primarybg cpnt-button;
+}
+
+.cpnt-comment {
+}
+
+/**
+ * This component is taken almost verbatim from Ryan Mulligan's
+ * See https://ryanmulligan.dev/blog/layout-breakouts/
+ **/
+.cpnt-bleed-layout {
+  /* Gap is the gutter/alleys size  */
+  --cpnt-bleed-layout-gap: clamp(1rem, 6vw, 3rem);
+  --cpnt-bleed-layout-full: minmax(var(--cpnt-bleed-layout-gap), 1fr);
+  --cpnt-bleed-layout-content: min(
+    50ch,
+    100% - var(--cpnt-bleed-layout-gap) * 2
+  );
+  --cpnt-bleed-layout-popout: minmax(0, 2rem);
+  --cpnt-bleed-layout-feature: minmax(0, 5rem);
+
+  display: grid;
+  /**
+   * Note each pair of -start/-end line names creates the track name without the suffix
+   * E.g. "full-start" and "full-end" means there is a track name "full"
+   **/
+  grid-template-columns:
+    [full-start]
+    var(--cpnt-bleed-layout-full)
+    [feature-start]
+    var(--cpnt-bleed-layout-feature)
+    [popout-start]
+    var(--cpnt-bleed-layout-popout)
+    [content-start]
+    var(--cpnt-bleed-layout-content)
+    [content-end]
+    var(--cpnt-bleed-layout-popout)
+    [popout-end]
+    var(--cpnt-bleed-layout-feature)
+    [feature-end]
+    var(--cpnt-bleed-layout-full)
+    [full-end];
+}
+
+/* Default all top-level content to the content column */
+.cpnt-bleed-layout > * {
+  grid-column: content;
+}
+.cpnt-bleed-layout .layout-popout {
+  grid-column: popout;
+}
+.cpnt-bleed-layout .layout-feature {
+  grid-column: feature;
+}
+.cpnt-bleed-layout .layout-full {
+  grid-column: full;
+}
+
+.cpnt-blog-article {
+  @apply my-md;
+
+  & p,
+  & ul,
+  & ol {
+    @apply my-lg;
+    @apply no-boost;
+  }
+
+  & blockquote p {
+    @apply m-0 p-0;
+  }
+
+  & h1,
+  & h2,
+  & h3,
+  & h4,
+  & h6 {
+    @apply mt-md;
+  }
+}
+
+/* Override boxicons */
+.bx {
+  vertical-align: middle;
+  @apply mx-sm;
+}
+
+.cpnt-hover-unhide:hover .invisible.cpnt-hover-unhide__target {
+  visibility: visible;
+}
+
+.cpnt-button {
+  @apply rounded-md py-xs px-md tracking-widest;
+
+  @apply text-primarybg bg-flashyfg;
+}
+
+/* Utility */
+
+/* See https://stackoverflow.com/questions/11289166/chrome-on-android-resizes-font */
+/* Also, for more details, https://jwir3.wordpress.com/2012/07/30/font-inflation-fennec-and-you/ */
+.no-boost {
+  max-height: 999999px;
+}
