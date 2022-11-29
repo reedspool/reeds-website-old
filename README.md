@@ -1,6 +1,6 @@
 # Reed's Website
 
-**STATUS**: In Progress. Will eventually be live at https://reeds.website
+**STATUS**: Live at https://reeds.website
 
 Reed Spool's personal website and blog.
 
