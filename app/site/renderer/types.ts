@@ -9,16 +9,14 @@ import type { PageContextBuiltInClient } from 'vite-plugin-ssr/client' // When u
 
 type Page = (pageProps: PageProps) => React.ReactElement
 export type PageProps = {
-    pageFiles?: {
-        blog: Array<PageFile>
-    }
+    blogPages: Array<PageBlogStuff>
 }
 
-type PageFile = {
-    pageId: string
-    fileExports: {
-        documentProps: PageContextExportDocumentProps
-    }
+export type PageBlogStuff = {
+    fileName: string;
+    urlName: string;
+    documentProps: PageContextExportDocumentProps
+    publishJSDate: Date
 }
 
 export type AddendaData = Array<{
@@ -31,17 +29,18 @@ export type AddendaData = Array<{
 export type PageContextExportDocumentProps = {
     type?: 'post'
     title: string
-    description: string
+    description?: string
     publishDate: string
-    addenda: AddendaData
-    discussionUrl: string
+    addenda?: AddendaData
+    discussionUrl?: string
 }
-export type PageLayout<T extends {} = {}> = React.FC<PropsWithChildren<T>>
+export type ClassNameProps = { className?: string; }
+export type PageLayout<T extends {} = {}> =
+    React.FC<PropsWithChildren<T & ClassNameProps>>
 export type PageContextCustom = {
     Page: Page
     pageProps?: PageProps
     urlPathname: string
-    _pageFilesAll: Array<PageFile>
     exports: {
         documentProps?: PageContextExportDocumentProps
         Layout: PageLayout

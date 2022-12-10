@@ -2,6 +2,8 @@ import ReactDOMServer from 'react-dom/server'
 import { PageShell } from './PageShell'
 import { DefaultLayout } from './DefaultLayout'
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
+import { pages } from "./../pages/getBlogPages";
+/* import { pages } from "./../pages/manualBlogPages"; */
 // @ts-ignore
 import logoUrl from '../public/logo.svg'
 // @ts-ignore
@@ -12,18 +14,18 @@ import type { PageContextServer, PageLayout } from './types'
 // via tree shaking, vite will see it and include a link to it in the HTML
 cssContent
 
-export { render }
 // See https://vite-plugin-ssr.com/data-fetching
 export const passToClient = ['pageProps', 'urlPathname']
 
-async function render(pageContext: PageContextServer) {
-    const { Page, pageProps } = pageContext
-    const { documentProps, Layout } = pageContext.exports
+export async function render(pageContext: PageContextServer) {
+    const { Page, pageProps, exports } = pageContext
+    const { documentProps, Layout } = exports
     const ActualLayout: PageLayout = Layout ?? DefaultLayout;
+    const blogPages = await pages
     const pageHtml = ReactDOMServer.renderToString(
         <PageShell>
             <ActualLayout {...documentProps}>
-                <Page {...pageProps} />
+                <Page {...pageProps} {...{ blogPages }} />
             </ActualLayout>
         </PageShell>
     )

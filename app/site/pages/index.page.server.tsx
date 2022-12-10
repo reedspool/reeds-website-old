@@ -1,7 +1,5 @@
 import { PageProps } from "../renderer/types";
-/* import { pages } from "./getBlogPages"; */
-import { pages } from "./manualBlogPages";
-export const Page: React.FC<PageProps> = () =>
+export const Page: React.FC<PageProps> = ({ blogPages }) =>
     <article className="cpnt-blog-article">
         <h1>Reed's Website</h1>
 
@@ -10,7 +8,7 @@ export const Page: React.FC<PageProps> = () =>
 
         <nav aria-label="Posts" className="mt-md">
             <ul className="flex flex-col gap-0 px-lg">
-                {pages.map(({ urlName, documentProps: { title, publishDate } }) =>
+                {blogPages.map(({ urlName, documentProps: { title, publishDate } }) =>
                     <li className="cpnt-hover-unhide py-md">
                         <a
                             className="flex flex-row justify-between items-center underline decoration-gray-400"
