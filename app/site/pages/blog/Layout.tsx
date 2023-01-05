@@ -5,12 +5,19 @@ import { Addenda } from "../../renderer/Addenda"
 import { DiscussionBox } from "../../renderer/DiscussionBox"
 
 import { PageContextExportDocumentProps, PageLayout } from "../../renderer/types"
+import { Case, Switch } from "./SwitchCase"
 import { Show } from "../../renderer/Show"
 
 export const Layout: PageLayout<PageContextExportDocumentProps> = ({ children, title, publishDate, addenda, discussionUrl }) => {
-    // Assume the addenda is sorted in chronological order, last is most recent
-    // The update date is the date of the most recent addenda
-    const updateDate = addenda[addenda.length - 1].date;
+    const isAddenda = addenda && addenda.length > 0;
+    const updateDate =
+        isAddenda
+            // Assume the addenda is sorted in chronological order, last is most recent
+            // The update date is the date of the most recent addenda
+            ? addenda[addenda.length - 1].date
+            // Otherwise its publishing was its last update
+            : publishDate;
+
     return <>
         <h1 className="mt-md">{title}</h1>
         <BlogFrontMatter
@@ -19,17 +26,24 @@ export const Layout: PageLayout<PageContextExportDocumentProps> = ({ children, t
         <BlogArticle>
             {children}
         </BlogArticle>
-        <DiscussionBox discussionUrl={discussionUrl} />
+        <Show when={discussionUrl}>
+            {/* @ts-ignore TS doesn't know we have already safety checked */}
+            <DiscussionBox discussionUrl={discussionUrl} />
+        </Show>
         <h2 className="my-md">Addenda</h2>
-        <Show when={addenda}>
-            <Addenda addenda={addenda} />
-        </Show>
-        <Show when={!addenda}>
-            <p className="my-md">
-                No addenda for this post yet.
-                Send me a private note if you have a thought or fix to share!.
-            </p>
-        </Show>
+        <Switch on={isAddenda}>
+            <Case truthy>
+                {/* @ts-ignore TS doesn't know we have already safety checked */}
+                <Addenda addenda={addenda} />
+            </Case>
+            <Case falsy>
+                <p className="my-md">
+                    No addenda for this post yet.
+                    Send me a private note if you
+                    have a thought or fix to share!.
+                </p>
+            </Case>
+        </Switch>
         <CommentWidget />
     </>
 
