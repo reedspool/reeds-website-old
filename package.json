@@ -8,7 +8,6 @@
   "scripts": {
     "initialize": "npm install && npm run all:install",
     "all:install": "npm-recursive-install",
-    "watch:dev": "NODE_OPTIONS='-r tsconfig-paths/register' netlify dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
