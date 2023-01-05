@@ -12,41 +12,57 @@ import { PageBlogStuff } from "../renderer/types";
 
 const draftsPath = "_drafts/";
 
-export const renderPostFiles: () => Promise<Array<Promise<PageBlogStuff>>> = async () => {
-    // Read the real file names which include `.page.server.mdx`
-    // NOTE: PWD is the Vite root, so we need to dig
-    const postFiles = await Promise.all(
-        [
-            readdir('./pages/blog/'),
-            readdir(`./pages/blog/${draftsPath}`)
-        ])
+// Even though we have the full file name, vite:dynamic-import-vars
+// requires that the dynamic import contains a static suffix which
+// is fine since we need to get this for the url anyways
+// It also requires a static prefix into the directory in question,
+// so we have to give different paths for drafts
+const importDraft = (urlName: string) =>
+    import(`./blog/_drafts/${urlName.substring(draftsPath.length)}.page.server.mdx`)
+const importPost = (urlName: string) =>
+    import(`./blog/${urlName}.page.server.mdx`)
+const matchMdxFiles = (fileName: string) => fileName.match(/\.mdx$/)
+const extractUrlName = (fileName: string) => fileName.substring(0, fileName.indexOf('.page.server.mdx'))
 
-    let [publishedFiles, draftFiles] = postFiles;
-
-    draftFiles = draftFiles.map(fileName => `${draftsPath}${fileName}`)
-
-    return publishedFiles.concat(draftFiles)
-        .filter((fileName) => fileName.match(/\.mdx$/))
+export const renderPublishedFiles: () => Promise<Array<Promise<PageBlogStuff>>> = async () => {
+    return (await readdir('./pages/blog/'))
+        .filter(matchMdxFiles)
         .map(
             async (fileName) => {
-                const urlName = fileName.substring(0, fileName.indexOf('.page.server.mdx'));
-                // Even though we have the full file name, vite:dynamic-import-vars
-                // requires that the dynamic import contains a static suffix which
-                // is fine since we need to get this for the url anyways
-                // It also requires a static prefix into the directory in question,
-                // so we have to give different paths for drafts
-                let imported;
-                if (urlName.startsWith(draftsPath)) {
-                    imported = await import(`./blog/_drafts/${urlName.substring(draftsPath.length)}.page.server.mdx`)
+                const urlName = extractUrlName(fileName);
+                const { documentProps } = await importPost(urlName);
+                const publishJSDate = new Date(documentProps.publishDate);
+                return {
+                    fileName, urlName, documentProps, publishJSDate
                 }
-                else {
-                    imported = await import(`./blog/${urlName}.page.server.mdx`)
-                }
-
-                const { documentProps } = imported;
-
-                return { fileName, urlName, documentProps, publishJSDate: new Date(documentProps.publishDate) } as PageBlogStuff
             })
+}
+
+export const renderDraftFiles: () => Promise<Array<Promise<PageBlogStuff>>> = async () => {
+    return (await readdir(`./pages/blog/${draftsPath}`))
+        .filter(matchMdxFiles)
+        .map(fileName => `${draftsPath}${fileName}`)
+        .map(
+            async (fileName) => {
+                const urlName = extractUrlName(fileName);
+                const { documentProps } = await importDraft(urlName);
+                documentProps.title = `[DRAFT] ${documentProps.title}`
+                const publishJSDate = new Date(documentProps.publishDate);
+                return {
+                    fileName, urlName, documentProps, publishJSDate
+                }
+            })
+}
+
+export const renderPostFiles: () => Promise<Array<Promise<PageBlogStuff>>> = async () => {
+    if (import.meta.env.PROD) {
+        return renderPublishedFiles()
+    }
+
+    // Dev mode, include blog posts
+    const all = await Promise.all([renderPublishedFiles(), renderDraftFiles()]);
+    const [published, drafts] = all;
+    return [...published, ...drafts];
 }
 
 export const reversePublishDate = (a: PageBlogStuff, b: PageBlogStuff) => {
