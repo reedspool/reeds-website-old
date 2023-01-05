@@ -10,19 +10,13 @@ html {
   line-height: 1.85em;
   height: 100%;
 
-  --primaryfg-rgb: 66 22 22;
-  --primarybg-rgb: 227 227 243;
+  --primaryfg-rgb: 39 22 22;
+  --primarybg-rgb: 227 237 243;
   --flashyfg-rgb: 26 108 40;
   --flashybg-rgb: 200 213 212;
 
   --flashy-font: "Chakra Petch", sans-serif;
   --prose-font: "Jost", sans-serif;
-
-  --banner-gradient: linear-gradient(
-    to right,
-    rgb(var(--flashyfg-rgb)),
-    rgb(var(--flashybg-rgb)) 100px
-  );
 
   @apply flex flex-col items-center;
   @apply text-primaryfg bg-primarybg;
@@ -72,12 +66,11 @@ footer {
 
 header {
   justify-content: flex-start;
-  background: var(--banner-gradient);
+  @apply bg-primarybg;
 }
 
 header.sticky {
   top: 0px;
-  filter: drop-shadow(0rem -1.8rem 2rem rgb(var(--flashybg-rgb)));
 }
 
 footer {
@@ -90,7 +83,7 @@ footer {
   margin-block-start: calc(var(--gap));
   margin-block-end: 0;
 
-  background: var(--banner-gradient);
+  @apply bg-primarybg;
 }
 
 nav ul,
