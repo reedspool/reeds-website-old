@@ -46,7 +46,7 @@ export const CommentWidget: React.FC = () =>
             `}
         >
             <h3
-                className="flex justify-between justify-self-start"
+                className="flex justify-between justify-self-start w-full"
             >
                 Private Note
                 <button className="close-button"

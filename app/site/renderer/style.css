@@ -112,7 +112,7 @@ ol li {
   counter-increment: counter-function;
   margin: 0.1rem;
   display: flex;
-  align-items: center; /* adjust as needed */
+  align-items: flex-start;
 }
 
 ol li::before {
@@ -130,21 +130,33 @@ input[type="submit"] {
 textarea,
 input {
   @apply bg-primarybg;
-}
-
-textarea {
   @apply py-sm px-md;
 }
 
 input {
-  @apply py-sm px-md;
+  @apply border border-black;
+  &[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+}
+
+label {
+  @apply w-full flex flex-row justify-between items-center;
+}
+
+label input {
+  @apply ml-md flex-grow;
 }
 
 blockquote {
   @apply bg-gray-300 text-gray-700 p-md mx-md my-xl italic;
 
   & p {
-    @apply m-0 p-0;
+    @apply mb-0 mx-0 mt-md p-0;
+  }
+
+  & p:nth-of-type(1) {
+    @apply mt-0;
   }
 }
 
@@ -229,6 +241,7 @@ a:hover .cpnt-logo {
 
 .cpnt-blog-article {
   @apply my-md;
+  @apply layout-full cpnt-bleed-layout;
 
   & p,
   & ul,
@@ -253,7 +266,6 @@ a:hover .cpnt-logo {
 /* Override boxicons */
 .bx {
   vertical-align: middle;
-  @apply mx-sm;
 }
 
 .cpnt-hover-unhide:hover .invisible.cpnt-hover-unhide__target {
