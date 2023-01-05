@@ -1,7 +1,7 @@
 import { LogoSVG } from "./LogoSVGSymbol"
 
-export const GlobalFooter: React.FC = () =>
-    <footer className="mb-0 h-max layout-full cpnt-bleed-layout py-md mt-md self-end">
+export const GlobalFooter: React.FC<{ className?: string }> = ({ className = '' }) =>
+    <footer className={`mb-0 h-max layout-full cpnt-bleed-layout py-md mt-md self-end ${className}`}>
         <nav className="flex flex-row gap-md">
             <ul>
                 <li>

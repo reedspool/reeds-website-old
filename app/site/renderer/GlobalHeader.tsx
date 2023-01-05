@@ -1,7 +1,7 @@
 import { LogoSVG } from "./LogoSVGSymbol"
 
-export const GlobalHeader: React.FC = () =>
-    <header className="sticky mt-0 h-max layout-full cpnt-bleed-layout py-md font-flashy">
+export const GlobalHeader: React.FC<{ className?: string }> = ({ className = '' }) =>
+    <header className={`sticky mt-0 mb-md h-max layout-full cpnt-bleed-layout py-md font-flashy ${className}`}>
         <nav className="flex flex-row gap-md">
             <ul>
                 <li><a href="/">
