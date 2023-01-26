@@ -1,0 +1,197 @@
+import { Link } from "../../../renderer/Link"
+import { Script, Output, ButtonFigureWrapper } from "./Hyperscript"
+import { Spoilers } from "./Spoilers"
+
+export const documentProps = {
+type: 'post',
+title: 'Advent of Code in Hyperscript 2022 Day 1',
+publishDate: '2022-12-02T12:00:00.000Z',
+addenda : null
+};
+
+<Spoilers>Day 1 of the 2022 Advent of Code</Spoilers>
+
+In this post I tackle <Link href="https://adventofcode.com/2022/day/1">Day 1 of the 2022 Advent of Code</Link> with <Link href="https://hyperscript.org">hyperscript</Link>.
+
+Advent of Code is an annual puzzle-fest. Each night from December 1 to December 25, a new puzzle is released. Programming is usually the best tool to solve each puzzle, and any programming language will work. Each year a new story line connects each puzzle. The story is always vaguely Christmas-y.
+
+To solve today's puzzles, I'm using the programming language "\_hyperscript" by Big Sky Software. It's an absurd choice for a programming puzzle, because hyperscript's primary domain is, in my own words, "website interactivity". The puzzles of Advent of Code are closer to the domain of "data crunching". So there is a paradigmatic conflict.
+
+On the other hand, one benefit of writing in a web-capable language like hyperscript is that I can easily integrate interactivity into this article. Below, I will share each stage of my code for the solution to the puzzles. Below each code block is a button to run that code. Enjoy!
+
+## Digging In
+
+The first puzzle of each year sets the stage for the narrative. Here is the text of the puzzle. This part isn't a spoiler&ndash;everyone sees the same story:
+
+> Santa's reindeer typically eat regular reindeer food, but they need a lot of <Link href="https://adventofcode.com/2018/day/25">magical energy</Link> to deliver presents on Christmas. For that, their favorite snack is a special type of **star** fruit that only grows deep in the jungle. The Elves have brought you on their annual expedition to the grove where the fruit grows.
+
+So far just lore. The link establishes continuity with a puzzle from four years ago. I don't think I've ever made it to Day 25 where the lore connects.
+
+> To supply enough magical energy, the expedition needs to retrieve a minimum of **fifty stars** by December 25th. Although the Elves assure you that the grove has plenty of fruit, you decide to grab any fruit you see along the way, just in case.
+>
+> Collect stars by solving puzzles. Two puzzles will be made available on each day in the Advent calendar; the second puzzle is unlocked when you complete the first. Each puzzle grants **one star**. Good luck!
+
+These are the same basic instructions every year.
+
+> The jungle must be too overgrown and difficult to navigate in vehicles or access from the air; the Elves' expedition traditionally goes on foot. As your boats approach land, the Elves begin taking inventory of their supplies. One important consideration is food - in particular, the number of **Calories** each Elf is carrying (your puzzle input).
+
+And here we get into the first puzzle. The puzzle is about to give us a large list of numbers of calories and we'll have to deliver a single number answer to some question about those numbers.
+
+> The Elves take turns writing down the number of Calories contained by the various meals, snacks, rations, etc. that they've brought with them, one item per line. Each Elf separates their own inventory from the previous Elf's inventory (if any) by a blank line.
+>
+> For example, suppose the Elves finish writing their items' Calories and end up with the following list:
+>
+> ```
+> 1000
+> 2000
+> 3000
+>
+> 4000
+>
+> 5000
+> 6000
+>
+> 7000
+> 8000
+> 9000
+>
+> 10000
+> ```
+
+The data is ASCII characters, like the ones we type in text editors and send in HTTP packets. The ASCII newline character `\n` separates each line. For example the first two lines below look like `1000\n2000` in code.
+
+Also note the blank lines are significant. Each blank line indicates two `\n` characters in a row.
+
+So that's the example data. that we can use to verify or troubleshoot our guess machine.
+
+Next is a more precise description of the data's format and how to read it. We'll have to write code to parse the input ourselves, so the precise description makes for a smoother implementation.
+
+> This list represents the Calories of the food carried by five Elves:
+>
+> - The first Elf is carrying food with `1000`, `2000`, and `3000` Calories, a total of **`6000`** Calories.
+> - The second Elf is carrying one food item with **`4000`** Calories.
+> - The third Elf is carrying food with `5000` and `6000` Calories, a total of **`11000`** Calories.
+> - The fourth Elf is carrying food with `7000`, `8000`, and `9000` Calories, a total of **`24000`** Calories.
+> - The fifth Elf is carrying one food item with **`10000`** Calories.
+
+The data format is a classic of the genre: numbers on separate lines. It never gets old.
+
+And now, the question we must answer:
+
+> In case the Elves get hungry and need extra snacks, they need to know which Elf to ask: they'd like to know how many Calories are being carried by the Elf carrying the **most** Calories. In the example above, this is **`24000`** (carried by the fourth Elf).
+>
+> Find the Elf carrying the most Calories. **How many total Calories is that Elf carrying?**
+
+There is key information here about the answer given the Example data. We will use that shortly to verify our answer. If our machine spits out **`24000`** when given the example data, we'll know we're on the right track.
+
+After the question, there's a link to get the puzzle data specific to me, or you. The puzzle input is different for each person, though it's not totally random or unique to each person. It just adds some challenge if you want to cheat. If not for this, cheating would be easy because there is exactly one answer for each input data.
+
+The real data at that link is a much larger set than the 14 line example above. My data was 2237 lines long.
+
+After the link to the puzzle data, there is a singular input box labeled "Answer:". It wants a number of Calories, and I intend to deliver one shortly.
+
+We will have to write some code to do these steps, loosely:
+
+1. Parse the input data into a list of numbers
+2. Sum up each group of numbers (each Elf's Calorie count)
+3. Search for the largest sum
+4. Print out the largest sum so I can copy and paste it into the answer box
+
+I start by splitting the big, long string into separate lines. I log each line. This ends up replicating the input, which is not useful. When the code evolves, the correct logic will replace the log statement.
+
+<Script Wrapper={ButtonFigureWrapper} caption="Fig 1.1: Repeating the lines">
+{`
+on click 
+  get data.example.trim().split('\\n')
+  repeat for line in the result 
+    get \`Line: \${line}\`
+    send put(msg: it) to next <output />
+  end
+end
+`}
+</Script>
+
+So I could see the values were being split appropriately. Now I had a thought to sum and search at the same time. I would:
+
+1. Start at line 1 with a sum of zero and a max of zero
+2. Go through each line
+3. If the line is a number (not a blank line) then add it to my current sum
+4. If the line is blank, then do two things: 1. If the current sum is greater than the max so far, it's the new max 2. reset the current sum to zero
+
+I tried it out.
+
+<Script Wrapper={ButtonFigureWrapper} caption="Fig 1.2: Summing and Counting">
+{`
+on click
+    set sum to 0
+    set max to 0
+    get data.example.trim().split('\\n')
+    repeat for line in the result
+        get parseInt(line)
+        if not Number.isNaN(the result)
+            -- Successfully parsed the number on the line
+            increment the sum by it
+        else
+            -- Parse was NaN -> blank line
+            if the sum is greater than the max
+              set the max to the sum
+            end
+            set the sum to 0
+        end
+    end
+    send put(msg: \`The max Calories any Elf has is <strong>\${max}</strong> Calories\` ) to next <output />
+`}
+</Script>
+
+How did we do?
+
+If our program gets the correct answer for the example data that's a good sign!
+
+When I got the example data working, I manually changed the input from `exampleData` to `realData`, where I had stored the input data I got from the Advent of Code website.
+
+I plugged my answer into the input box on the website and the output was correct! I got my first star of 2022!
+
+On to Part 2
+
+> By the time you calculate the answer to the Elves' question, they've already realized that the Elf carrying the most Calories of food might eventually **run out of snacks**.
+>
+> To avoid this unacceptable situation, the Elves would instead like to know the total Calories carried by the **top three** Elves carrying the most Calories. That way, even if one of those Elves runs out of snacks, they still have two backups.
+>
+> In the example above, the top three Elves are the fourth Elf (with `24000` Calories), then the third Elf (with `11000` Calories), then the fifth Elf (with `10000` Calories). The sum of the Calories carried by these three elves is **`45000`**.
+>
+> Find the top three Elves carrying the most Calories. **How many Calories are those Elves carrying in total?**
+
+Okay, our example should output `45000` this time.
+
+In the first part, we got by only tracking a single sum as we looped down the list. Now we'll have to keep track of no less than three sums, because we'll need to add all of them up at the end.
+
+What if we just kept track of the whole list in an array of sums, then sorted that array and summed the first three elements?
+
+<Script Wrapper={ButtonFigureWrapper} caption="Fig 1.2: Summing and Counting">
+{`
+on click
+    set sums to [0]
+    get data.example.trim().split('\\n')
+    repeat for line in the result
+        get parseInt(line)
+        if not Number.isNaN(the result)
+            -- Successfully parsed the number on the line
+            increment sums[0] by it
+        else
+            -- Parse was NaN -> blank line
+            -- Just push a new empty sum
+            sums.unshift(0)
+        end
+    end
+    get sums.sort().reverse()
+    get result[0] + result[1] + result[2]
+    get \`The top three Elves are carrying <strong>\${result}</strong> Calories\`
+    send put(msg: the result) to next <output />
+`}
+</Script>
+
+That worked swimmingly on the example data, so I again I switched from `exampleData` to `realData` and tried the answer on the big site.
+
+It worked!
+
+Two Stars for Day 1!

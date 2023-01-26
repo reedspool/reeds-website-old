@@ -1,0 +1,18 @@
+import { Codepad, Script as CodenamesScript, CodenamesCodePadShell, Decimal, Binary, Reset, MathTable, ToggleWordsOrIndices, } from "./CodenamesCodePad"
+
+export const documentProps = {
+type: 'post',
+title: 'Codenames Clues Scratchpad',
+publishDate: '2022-12-06T12:00:00.000Z',
+addenda : null
+};
+
+<CodenamesScript />
+<CodenamesCodePadShell decimalValue={31415926} children={[
+Codepad,
+Binary,
+Decimal,
+Reset,
+ToggleWordsOrIndices,
+MathTable
+]} />

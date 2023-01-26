@@ -65,5 +65,35 @@ Derrell says,
                 },
             ]
         }
-    }
+    },
+    {
+        urlName: '_drafts/20221201-advent-of-code-hyperscript-day-1-2022',
+        publishJSDate: new Date('2022-12-02T12:00:00.000Z'),
+        documentProps: {
+            type: 'post',
+            title: 'Advent of Code in Hyperscript 2022 Day 1',
+            publishDate: '2022-12-02T12:00:00.000Z',
+            addenda: undefined
+        }
+    },
+    {
+        urlName: '_drafts/20221204-advent-of-code-hyperscript-day-2-2022',
+        publishJSDate: new Date('2022-12-04T12:00:00.000Z'),
+        documentProps: {
+            type: 'post',
+            title: 'Advent of Code in Hyperscript 2022 Day 2',
+            publishDate: '2022-12-04T12:00:00.000Z',
+            addenda: undefined
+        }
+    },
+    {
+        urlName: '_drafts/20221206-codenames-clues',
+        publishJSDate: new Date('2022-12-06T12:00:00.000Z'),
+        documentProps: {
+            type: 'post',
+            title: 'Codenames Clues',
+            publishDate: '2022-12-06T12:00:00.000Z',
+            addenda: undefined
+        }
+    },
 ]

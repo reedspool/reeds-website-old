@@ -250,8 +250,44 @@ a:hover .cpnt-logo {
     @apply no-boost;
   }
 
-  & blockquote p {
-    @apply m-0 p-0;
+  & blockquote {
+    @apply layout-popout m-0 p-xl;
+
+    & p {
+      @apply mb-0 mx-0 mt-md p-0;
+    }
+
+    & p:nth-of-type(1) {
+      @apply mt-0;
+    }
+
+    & pre {
+      @apply mt-md;
+    }
+  }
+
+  & pre {
+    font-size: 0.9em;
+    line-height: 1.45em;
+
+    @apply layout-popout bg-primaryfg/10 text-primaryfg px-xl py-md rounded-md overflow-x-auto mb-md;
+  }
+
+  & figure {
+    @apply bg-primaryfg/40 p-xl rounded-md;
+
+    & figcaption {
+      @apply mb-xs;
+    }
+
+    & pre {
+      @apply bg-primaryfg/10 text-primaryfg px-md py-sm rounded-md overflow-x-auto mb-md;
+    }
+
+    & output pre {
+      @apply p-md overflow-y-auto;
+      max-height: 10rem;
+    }
   }
 
   & h1,
@@ -276,6 +312,51 @@ a:hover .cpnt-logo {
   @apply rounded-md py-xs px-md tracking-widest;
 
   @apply text-primarybg bg-flashyfg;
+}
+
+.cpnt-codenames-codepad {
+  /* this squared is the total count of all squares in the grid */
+  --cpnt-codenames-codepad-grid-side-length: 5;
+  display: grid;
+  grid-template-columns: repeat(
+    var(--cpnt-codenames-codepad-grid-side-length),
+    1fr
+  );
+  grid-template-rows: repeat(
+    var(--cpnt-codenames-codepad-grid-side-length),
+    1fr
+  );
+  align-content: center;
+  justify-content: center;
+  gap: 1rem;
+
+  & [data-script^="install codenameCard"] {
+    @apply border border-black h-full w-full flex justify-center items-center rounded-xl;
+  }
+}
+/* TODO How to append underscores using CSS Nesting spec? */
+.cpnt-codenames-codepad__red,
+.cpnt-codenames-codepad__blank {
+  @apply transition-colors;
+  transition-duration: 100ms;
+}
+.cpnt-codenames-codepad__red {
+  @apply bg-red-400;
+
+  &:nth-child(2n) {
+    @apply bg-red-400/80;
+  }
+}
+.cpnt-codenames-codepad__blank {
+  @apply bg-stone-300;
+
+  &:nth-child(2n) {
+    @apply bg-stone-300/80;
+  }
+}
+input[type="number"][data-script^="install decimal"] {
+  @apply flex-grow-0;
+  @apply text-right font-mono;
 }
 
 /* Utility */
