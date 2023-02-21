@@ -10,7 +10,7 @@ A static type system for JavaScript. This project [follows this setup](https://b
 
 This project also extensively uses the Typescript configuration `"paths"` to reference internal libraries by name instead of by relative paths. When you see `"@lib/"` in an `import` statement, this is possible because of this configuration in the nearest `tsconfig.json` file. This supports the [Library/Application](architecture-libs-and-apps.md) idea without complicated and fragile file paths everywhere.
 
-The `"paths"` configuration enables the Typescript compiler to find the modules to check types, but it does not modify the compilation output. [These docs](https://github.com/TypeStrong/ts-node#why-is-this-not-built-in-to-ts-node) explain it more thoroughly. Thus, those `"@lib/"` custom names show up in the `dist` JavaScript files. Unfortunately, Node needs extra help to interpret those custom names. Enter the [tsconfig-paths package](https://www.npmjs.com/package/tsconfig-paths). Once installed, the additional option to the `node` executable `-r tsconfig-paths/register` will reuse the paths defined in `tsconfig.json`.
+The `"paths"` configuration enables the Typescript compiler to find the modules to check types, but it does not modify the compilation output as [these docs](https://github.com/TypeStrong/ts-node#why-is-this-not-built-in-to-ts-node) explain. Thus, those `"@lib/"` custom names show up in the `dist` JavaScript files. Unfortunately, Node needs extra help to interpret those custom names. Enter the [tsconfig-paths package](https://www.npmjs.com/package/tsconfig-paths). The additional option to the `node` executable `-r tsconfig-paths/register` will reuse the paths defined in `tsconfig.json`.
 
 ## NodeJS
 

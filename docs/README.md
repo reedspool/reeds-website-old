@@ -1,18 +1,14 @@
-# Documentation Home
+# Reed's Website's Docs' Home
 
-You are at the entry-point for documentation. Find links to other documentation here.
+Welcome to the documentation for Reed's Website. Documentation of varied quality abounds.
 
-Further documentation is available for each application and library. Check their respective `README.md` files.
+To get situated on a new machine, see [Development Setup](dev-setup.md). Then head to [Development Process](dev-process.md) for more detail on development and descriptions of scripts.
 
-## Top-Level Docs
+The source files are divided into [Libraries and Applications](architecture-libs-and-apps.md).
 
-- [Development Setup](dev-setup.md) to get situated on a new machine.
-- [Development Process](dev-process.md) for more detail on development and descriptions of scripts.
-- [Libraries and Applications](architecture-libs-and-apps.md) explains why the source files are divided as such.
-- [Technology](technology.md) provides a high-level description of technologies in this project.
-- [Documentation How-To](docs-how-to.md) contains instructions to write docs which fit in with the rest of 'em
-  - [The Documentation Template](docs-template.md) is part of the How-To [How-To](docs-how-to.md) instructions.
-  - [Not Yet Implemented](docs-not-yet-implemented.md) is a target for links to yet-unmade documentation or features.
+A high-level description of the [Technologies](technology.md) used in this project.
+
+[Documentation How-To](docs-how-to.md) contains instructions to write docs which fit in with the rest of 'em. [The Documentation Template](docs-template.md) is part of the [How-To](docs-how-to.md) instructions. [Not Yet Implemented](docs-not-yet-implemented.md) is a target for links to yet-unmade documentation or features.
 
 ## Project Directory Structure/Index
 

@@ -8,10 +8,13 @@ Follow the steps in [Dev Setup](dev-setup.md) before running any scripts describ
 
 Top-level scripts in [package.json](../package.json):
 
-- `npm run initialize` to install all NPM dependencies.
-- `npm run all:install` installs just the package-specific dependencies. Used by `initialize`.
-- `npm run docs:serve` runs a simple server to view the documentation.
-- `npm run docs:browse` opens your web browser to the documentation home page.
+
+| Script                | Description                                                            |
+|-----------------------|------------------------------------------------------------------------|
+| `npm run initialize`  | to install all NPM dependencies.                                       |
+| `npm run all:install` | installs just the package-specific dependencies. Used by `initialize`. |
+| `npm run docs:serve`  | runs a simple server to view the documentation.                        |
+| `npm run docs:browse` | opens your web browser to the documentation home page.                 |
 
 For package-specific scripts, review docs in their directories:
 
