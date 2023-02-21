@@ -7,16 +7,19 @@
   },
   "scripts": {
     "initialize": "npm install && npm run all:install",
-    "all:install": "npm-recursive-install",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "docs:browse": "open http://localhost:6060/docs/README.md",
+    "docs:serve": "pen",
+    "all:install": "npm-recursive-install"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "typescript": "^4.3.5",
     "netlify-cli": "^12.0.11",
+    "open": "^8.4.1",
+    "pen": "^2.2.0",
     "recursive-install": "^1.4.0",
-    "tsconfig-paths": "^4.1.0"
+    "tsconfig-paths": "^4.1.0",
+    "typescript": "^4.3.5"
   }
 }
