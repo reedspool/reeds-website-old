@@ -1,0 +1,961 @@
+<!doctype html>
+<html class="no-js" lang="" dark-mode>
+
+<head>
+    <meta charset="utf-8">
+    <title>Scroll experiment</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script type="text/javascript">
+        const state = window.state = {};
+        const scrollData = state.scrollData = [];
+        const n = state.n = 5;
+        state.lastScrollEvent = null;
+
+        window.onScroll = function (event) {
+            const { scrollY } = window;
+            const time = Date.now();
+
+            // Invert the sign because scrolling up feels more natural to represent as a positive scroll
+            // when visualizing
+            const diffY = state.lastScrollEvent == null ? 0 : (scrollY - state.lastScrollEvent.scrollY) * -1;
+            const diffTime = state.lastScrollEvent == null ? 0 : time - state.lastScrollEvent.time;
+
+            state.lastScrollEvent = { scrollY, time, diffY, diffTime };
+
+            if (scrollData.length >= n) scrollData.shift();
+            scrollData.push(state.lastScrollEvent);
+        }
+    </script>
+</head>
+
+<body onscroll="window.onScroll(event)">
+    <script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag.js"></script>
+
+<div md id="a-intro">
+# Scroll experiment
+
+An open-ended exploration of scrolling in a browser window.
+
+I update and edit sections in no particular order. If something
+seems non-sensical or broken, it is.
+</div>
+
+<div md id="a-toc">
+## Table of Contents
+
+1. [Introduction](#a-intro)
+1. [Table of contents](#a-toc)
+1. [Metrics](#a-metrics)
+1. [Scroll Events](#a-scroll-events)
+1. [Scroll Percent](#a-scroll-percent)
+1. [Scroll Velocity](#a-scroll-velocity)
+1. [Dev Setup and Process](#a-dev-setup)
+1. [Page Styling](#a-styling)
+1. [Endless Filler Text](#a-lorem)
+1. [Experimental Spec: Scroll-Linked CSS Animations](#a-scroll-linked-css-animations)
+1. [The Bottom of the Page](#a-bottom)
+</div>
+
+<details cpnt-popout open>
+    <summary>Popout</summary>
+    <div cpnt-popout__target></div>
+</details>
+<script type="module">
+    const popout = document.querySelector('[cpnt-popout__target]')
+    window.popout = function (element) {
+        if (popout.contains(element)) return;
+        if (! element.anchor) element.anchor = element.previousElementSibling;
+        const container = document.createElement('div')
+        container.setAttribute('cpnt-popout__entry', true)
+        container.append(element)
+        const unpopoutButton = document.createElement('button')
+        unpopoutButton.innerHTML = '↘';
+        unpopoutButton.setAttribute("title", "Pop back into article")
+        unpopoutButton.addEventListener('click', () => {
+            element.anchor.after(element)
+            container.remove();
+        })
+        container.append(unpopoutButton)
+        popout.append(container)
+    }
+</script>
+
+<div md id="a-metrics">
+## Metrics
+
+A framerate counter is a simple way to measure a webpage's performance. The higher the frames
+per second (fps), the more smooth the site will feel.
+
+The framerate chart below shows how often JavaScript's
+`requestAnimationFrame` callbacks run. I call this the JS FPS to distinguish it
+from the CSS painting frames per second. The code looks something like this:
+
+```js
+requestAnimationFrame(function loop() {
+    // ... Calculate time between these calls
+    // Endlessly loop
+    requestAnimationFrame(loop);
+})
+```
+
+You can
+<button onclick="window.popout(document.querySelector('[cpnt-fps]'))">pop out ⇱</button>
+the framerate counter to keep it visible while you scroll.
+</div>
+
+<div cpnt-fps>
+    <div id="sparklines"></div>
+    <div id="fps"></div>
+</div>
+<script type="module">
+    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+    // From https://stackoverflow.com/a/5111475/1037165
+    // The higher this value, the less the fps will reflect temporary variations
+    // A value of 1 will only keep the last value
+    const filterStrength = 100;
+    let fps = 60;
+    let last = Date.now();
+    const numPoints = 60;
+    const data = new Array(numPoints).fill(0);
+    requestAnimationFrame(function loop() {
+        const now = Date.now();
+        let timeSinceLastFrame = now - last;
+        const lastFps = fps;
+
+        if (timeSinceLastFrame === 0) {
+            // This has happened on my one low-power e-ink reader and a friend's
+            // mac on Safari. I'm not sure why it occurs but it does need to be
+            // accounted for.
+            console.warn('Browser reports two frames at the same time')
+            timeSinceLastFrame = 1;
+        } else {
+            // This has never happened, but it's how I detected the previous problem
+            if (Number.isNaN(fps) || ! Number.isFinite(fps)) throw alert(
+            `
+                FPS: ${fps}
+                Instant: ${(1000 / timeSinceLastFrame).toFixed(0)}
+                Filter ${filterStrength}
+                Last ${lastFps}
+                Last time ${last}
+                Now time ${now}
+            `)
+        }
+
+        const instantaneousFps = (1000 / timeSinceLastFrame).toFixed(0);
+        fps += (instantaneousFps - fps) / filterStrength;
+        data.shift()
+        data.push(instantaneousFps)
+
+
+        last = now;
+
+        // setTimeout(() => requestAnimationFrame(loop), 16)
+        requestAnimationFrame(loop)
+    })
+
+    const WIDTH = numPoints;
+    const HEIGHT = 30;
+    // const BAR_WIDTH = (WIDTH - numPoints) / numPoints;
+    const BAR_WIDTH = 1;
+    const x = d3.scaleLinear().domain([0, numPoints]).range([0, WIDTH]);
+    const y = d3.scaleLinear().domain([80, 0]).range([HEIGHT, 0]);
+    const svg = d3.select('#sparklines').append('svg')
+        .attr('width', WIDTH)
+        .attr('height', HEIGHT)
+        .append('g');
+    svg.selectAll('.bar').data(data)
+        .enter()
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('x', (d, i) => x(i))
+        .attr('y', d => HEIGHT - y(d))
+        .attr('width', BAR_WIDTH)
+        .attr('height', d => y(d))
+        .attr('fill', 'green');
+
+    // Report the fps only every second, to only lightly affect measurements
+    var fpsOut = document.getElementById('fps');
+    setInterval(function () {
+        fpsOut.innerHTML = fps.toFixed(0) + " JS fps";
+
+        requestAnimationFrame(() => svg.selectAll('.bar').data(data)
+            .attr('x', (d, i) => x(i))
+            .attr('y', d => HEIGHT - y(d))
+            .attr('height', d => y(d))
+            .attr('fill', d => {
+                return d > 58 ? 'green' : d > 40 ? 'currentColor' : 'red';
+            }));
+    }, 16);
+</script>
+
+<div md id="a-scroll-events">
+## Scroll Events
+
+Which measurements in the DOM are related to scrolling?
+
+`window.scrollY` tracks how far the scrollbar has scrolled down the page.
+<button onclick="window.popout(document.querySelector('[cpnt-window-scroll-y]'))">⇱</button>
+</div>
+
+<div cpnt-window-scroll-y>
+    Waiting for first scroll event&hellip;⏳
+</div>
+
+<script type="module">
+    const target = document.querySelector('[cpnt-window-scroll-y]')
+    let lastSeen = null;
+    requestAnimationFrame(function update() {
+        const { lastScrollEvent } = window.state;
+        if (lastScrollEvent !== null && lastSeen !== lastScrollEvent) {
+            lastSeen = lastScrollEvent;
+            const scrollY = lastScrollEvent.scrollY
+            const isFloat = scrollY - Math.floor(scrollY) > 0.000000001;
+            target.innerHTML = `<code>window.scrollY: ${scrollY.toFixed(isFloat ? 2 : 0)} px</code>`;
+        }
+
+        setTimeout(() => requestAnimationFrame(update), 16);
+    })
+</script>
+
+<div md>
+If you scroll all the way to the bottom of the page, then `window.scrollY`
+reaches some maximum value. What is that value?
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollY" target="_blank">
+    The MDN page</a>
+explains why it stops at 0 when scrolled to the top. I wish it explained how to
+reliably calculate the max value when scrolled to the bottom.
+Can we calculate this "scroll bottom" value in JavaScript?
+</div>
+
+<div md>
+The scrollbar can traverse the entire scrollable height of the document body, `body.scrollHeight`.
+<button onclick="window.popout(document.querySelector('[cpnt-body-scroll-height]'))">⇱</button>
+</div>
+
+<div cpnt-body-scroll-height>Loading&hellip;⏳</div>
+
+<script type="module">
+    const target = document.querySelector('[cpnt-body-scroll-height]')
+    let last = null
+    requestAnimationFrame(function update() {
+        setTimeout(() => requestAnimationFrame(update), 16);
+        if (last == document.body.scrollHeight) return;
+        last = document.body.scrollHeight;
+        target.innerHTML = `<code>body.scrollHeight: ${last} px</code>`;
+    })
+</script>
+
+<div md>
+Well that's the theory anyway. Depending on your browser,
+<a href="https://stackoverflow.com/a/17698713/1037165" target="_blank">
+    as of 2013</a>,
+you need the biggest one of these values:
+
+```js
+const scrollFloor =
+    Math.max(
+        document.body.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.clientHeight,
+        document.documentElement.scrollHeight,
+        document.documentElement.offsetHeight);
+```
+</div>
+
+<div md>
+Notice that `window.scrollY` will never reach that value even if you
+scroll all the way to the bottom.
+
+It will, however go to exactly `scrollFloor - window.innerHeight`, which is the scrollable distance minus
+the visible height.
+
+`window.innerHeight` is the height of the visible portion of the page that you
+can see in your browser viewport right now. It will change if you resize your
+browser window.
+<button onclick="window.popout(document.querySelector('[cpnt-window-inner-height]'))">⇱</button>
+</div>
+
+<div cpnt-window-inner-height>Loading&hellip;⏳</div>
+
+<script type="module">
+    const target = document.querySelector('[cpnt-window-inner-height]')
+    let last = null
+    requestAnimationFrame(function update() {
+        setTimeout(() => requestAnimationFrame(update), 16);
+        if (last == window.innerHeight) return;
+        last = window.innerHeight;
+        target.innerHTML = `<code>window.innerHeight: ${last} px</code>`;
+    })
+</script>
+
+<div md>
+`scrollFloor - window.innerHeight` is a good value for the
+bottom of the scrollbar, or the max that `window.scrollY` can go.
+<button onclick="window.popout(document.querySelector('[cpnt-body-scroll-bottom]'))">⇱</button>
+</div>
+
+<div cpnt-body-scroll-bottom>Loading&hellip;⏳</div>
+
+<script type="module">
+    window.getScrollBottom = () => {
+        const scrollFloor = Math.max(
+            document.body.scrollHeight,
+            document.body.offsetHeight,
+            document.documentElement.clientHeight,
+            document.documentElement.scrollHeight,
+            document.documentElement.offsetHeight
+        )
+        return scrollFloor - window.innerHeight;
+    }
+    const target = document.querySelector('[cpnt-body-scroll-bottom]')
+    let last = null
+    requestAnimationFrame(function update() {
+        setTimeout(() => requestAnimationFrame(update), 16);
+        const scrollBottom = window.getScrollBottom();
+        if (last == scrollBottom) return;
+        last = scrollBottom;
+        target.innerHTML = `<code>scroll bottom: ${scrollBottom} px</code>`;
+    })
+</script>
+
+<div md>
+How much time has passed since the last `scroll` event occurred?
+<button onclick="window.popout(document.querySelector('[cpnt-time-since-last-scroll]'))">⇱</button>
+</div>
+
+<div cpnt-time-since-last-scroll>
+</div>
+
+<script type="module">
+    const target = document.querySelector('[cpnt-time-since-last-scroll]')
+    let lastSeen = null;
+    requestAnimationFrame(function update() {
+        const { lastScrollEvent } = window.state;
+        if (lastScrollEvent !== null) {
+            lastSeen = lastScrollEvent;
+            const diff = Date.now() - lastSeen.time;
+            const time = diff < 1000 ? diff : diff / 1000
+            const unit = diff < 1000 ? 'millis' : 'seconds'
+            target.innerHTML = `Time since last <code>scroll</code> event: ${time.toFixed(0)} ${unit}`;
+        }
+
+        setTimeout(() => requestAnimationFrame(update), 16);
+    })
+</script>
+
+<div md id="a-scroll-percent">
+## Scroll Percent
+
+The percentage of the current `scrollY` within its range `[0, scrollBottom]`.
+<button onclick="window.popout(document.querySelector('[cpnt-scroll-percent]'))">
+    ⇱
+</button>
+</div>
+
+<div cpnt-scroll-percent> Loading&hellip;⏳</div>
+
+<script type="module">
+    window.getScrollProgress = function () {
+        return window.scrollY / window.getScrollBottom();
+    };
+    const div = document.querySelector("[cpnt-scroll-percent]");
+    requestAnimationFrame(function loop() {
+        const progress = window.getScrollProgress();
+        div.innerHTML = `<code>Scroll percent: ${Math.floor(progress * 100)}%</code>`
+        setTimeout(() => requestAnimationFrame(loop), 16)
+    })
+</script>
+
+<div md>
+
+The chart below shows that scroll progress value over time.
+
+You can
+<button onclick="window.popout(document.querySelector('[cpnt-scroll-progress-chart]'))">
+    pop out ⇱
+</button>
+the chart to see it while you scroll.
+</div>
+
+<div cpnt-scroll-progress-chart>Loading&hellip;⏳</div>
+
+<script type="module">
+    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+    const progress = window.getScrollProgress();
+
+    const numPoints = 100;
+    const period = 20;
+    const now = Date.now();
+
+    window.makeScrollProgressChart = function ({ target, x, y, yDomain, fnY, fnHeight}) {
+       const WIDTH = 200;
+       const HEIGHT = 30;
+       const BAR_WIDTH = (WIDTH - numPoints) / numPoints;
+
+       x = x || d3.scaleLinear().domain([0, numPoints]).range([0, WIDTH]);
+       y = y || d3.scaleLinear().domain(yDomain || [0, 1]).range([1, HEIGHT]);
+
+       target.html(""); // Clear it out
+
+       const chart = target.append('div');
+
+       const svg = chart.append('svg')
+           .attr('width', WIDTH)
+           .attr('height', HEIGHT)
+           .append('g');
+
+       fnY = fnY || (d => HEIGHT - y(d.progress));
+       fnHeight = fnHeight || (d => y(d.progress));
+
+       svg.selectAll('.bar').data(data)
+           .enter()
+           .append('rect')
+           .attr('class', 'bar')
+           .attr('x', (d, i) => x(i))
+           .attr('y', fnY)
+           .attr('width', BAR_WIDTH)
+           .attr('height', fnHeight)
+           .attr('fill', 'green');
+
+       setInterval(function () {
+           requestAnimationFrame(() => svg.selectAll('.bar').data(data)
+               .attr('x', (d, i) => x(i))
+               .attr('y', fnY)
+               .attr('height', fnHeight)
+               .attr('fill', 'currentColor')
+           );
+       }, 16);
+
+    }
+
+    const data = new Array(numPoints)
+        .fill({progress})
+        .map((d, i) => {
+            const time = now - ((numPoints - (i + 1)) * (1000 / period))
+            return{...d, time}
+        });
+
+    requestAnimationFrame(function dataLoop () {
+        data.shift();
+        data.push({ time : Date.now(), progress : window.getScrollProgress() })
+        setTimeout(requestAnimationFrame(dataLoop), 16)
+    })
+
+    window.makeScrollProgressChart({ target: d3.select("[cpnt-scroll-progress-chart]") })
+</script>
+
+<div md>
+Maybe flipped around it's more intuitive.
+<button onclick="window.popout(document.querySelector('[cpnt-scroll-progress-chart-flipped]'))">
+    ⇱
+</button>
+</div>
+
+<div cpnt-scroll-progress-chart-flipped>Loading&hellip;⏳</div>
+
+<script type="module">
+    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+    window.makeScrollProgressChart({
+        target: d3.select("[cpnt-scroll-progress-chart-flipped]"),
+        yDomain: [0, 1],
+        fnY: () => 0,
+    })
+</script>
+
+<div md>
+What about a cute ball riding the wave?
+<button onclick="window.popout(document.querySelector('[cpnt-scroll-progress-chart-flipped-ball]'))">
+    ⇱
+</button>
+</div>
+
+<div cpnt-scroll-progress-chart-flipped-ball>Loading&hellip;⏳</div>
+
+<script type="module">
+    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+    const progress = window.getScrollProgress();
+
+    const numPoints = 100;
+    const period = 20;
+    const now = Date.now();
+    const gravity = 0.1; // On the scale of pixels
+    const ball = { x: Math.floor(numPoints * 0.75),
+                   y: 0, xVel : 0, yVel : 0, radius : 2 }
+
+    window.makeScrollProgressBallChart = function ({ target, x, y, yDomain, fnY, fnHeight}) {
+       const WIDTH = 200;
+       const HEIGHT = 30;
+       const BAR_WIDTH = (WIDTH - numPoints) / numPoints;
+
+       const BUFFER_TOP = 10;
+
+       const yRange = [BUFFER_TOP, HEIGHT];
+       x = x || d3.scaleLinear().domain([0, numPoints]).range([0, WIDTH]);
+       y = y || d3.scaleLinear().domain(yDomain || [0, 1]).range(yRange);
+
+       target.html(""); // Clear it out
+
+       const chart = target.append('div');
+
+       const svg = chart.append('svg')
+           .attr('width', WIDTH)
+           .attr('height', HEIGHT)
+           .append('g');
+
+       fnY = (typeof fnY !== "undefined") ? fnY : 0;
+       fnHeight = (typeof fnHeight !== "undefined")
+                ? fnHeight
+                : (d => y(d.progress));
+
+       ball.y = fnHeight(data[ball.x])
+
+       svg.selectAll('.bar').data(data)
+           .enter()
+           .append('rect')
+           .attr('class', 'bar')
+           .attr('x', (d, i) => x(i))
+           .attr('y', fnY)
+           .attr('width', BAR_WIDTH)
+           .attr('height', fnHeight)
+           .attr('fill', 'green');
+
+       svg.selectAll('.ball').data([ ball ])
+           .enter()
+           .append('circle')
+           .attr('class', 'ball')
+           .attr('cx', (d, i) => x(d.x))
+           .attr('cy', (d, i) => d.y)
+           .attr('r', (d) => d.radius)
+           .attr('fill', 'var(--bg)');
+
+       setInterval(function () {
+           requestAnimationFrame(() => {
+               svg.selectAll('.bar').data(data)
+                   .attr('x', (d, i) => x(i))
+                   .attr('y', fnY)
+                   .attr('height', fnHeight)
+                   .attr('fill', 'currentColor')
+
+               const platformHeight = data[ball.x].progress
+               const pxPlatformHeight = y(platformHeight) - ball.radius
+               // If the mountain has overtaken us, shoot up based on the
+               // the difference in our position
+               const diffPosition =
+                   Math.abs((pxPlatformHeight - ball.y) / (yRange[1] - yRange[0]));
+               // If our last position wouldn't do it anymore, then we're pinched upwards
+               if (ball.y >= pxPlatformHeight) ball.yVel = -Math.abs(ball.yVel) * (1.3 + diffPosition);
+               // If the next step would take us past the platform, instead bounce
+               else if (ball.y + ball.yVel >= pxPlatformHeight) ball.yVel = -Math.abs(ball.yVel) * 0.9;
+               else if (ball.y < pxPlatformHeight) ball.yVel += gravity
+               ball.y += ball.yVel;
+               if (ball.y > pxPlatformHeight) ball.y = pxPlatformHeight;
+
+               svg.selectAll('.ball').data([ball])
+                   .attr('cy', (d, i) => d.y)
+           });
+       }, 16);
+    }
+
+    const data = new Array(numPoints)
+        .fill({progress})
+        .map((d, i) => {
+            const time = now - ((numPoints - (i + 1)) * (1000 / period))
+            return{...d, time}
+        });
+
+    requestAnimationFrame(function dataLoop () {
+        data.shift();
+        data.push({ time : Date.now(), progress : window.getScrollProgress() })
+        setTimeout(requestAnimationFrame(dataLoop), 16)
+    })
+
+    window.makeScrollProgressBallChart({ target: d3.select("[cpnt-scroll-progress-chart-flipped-ball]") })
+</script>
+
+<div md id="a-scroll-velocity">
+## Scroll Velocity
+
+This chart tracks scroll distance over time. This speed is positive when
+scrolling up and negative when scrolling down.
+
+On the X-axis, time elapsed in seconds.
+
+On the Y-axis, the difference in scroll position between two moments.
+
+Y is positive when scrolling up, and negative when scrolling down.
+
+You can
+<button onclick="window.popout(document.querySelector('[cpnt-scrolling-chart]'))">
+    pop out ⇱
+</button>
+the chart to see it while you scroll.
+</div>
+
+<script type="module">
+    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+    import { AreaChart } from "./d3AreaChart.js";
+
+    const div = d3.select("[cpnt-scrolling-chart]");
+    const period = 60; // datapoints per second
+    const numPoints = 250;
+    const now = Date.now();
+    const data = new Array(numPoints).fill({
+        scrollY: 0,
+        diffTime: numPoints / period,
+        diffY: 0
+    }).map((d, i) => ({
+        ...d,
+        time : now - ((numPoints - (i + 1)) * (1000 / period))
+    }));
+    let lastAdded = null;
+    const state = {}
+    const yExtent = state.yExtent = [0, 0];
+    let countSinceLastScroll = 0;
+    const update = () => {
+        const { lastScrollEvent } = window.state;
+        if (lastScrollEvent === null) {
+            setTimeout(
+                () => requestAnimationFrame(update),
+                1000 / period);
+            return;
+        }
+        if (data.length > numPoints) data.shift();
+        if (lastAdded === lastScrollEvent) {
+            countSinceLastScroll++;
+            const time = Date.now();
+            // No change in scroll
+            data.push({
+                scrollY: lastScrollEvent.scrollY,
+                time,
+                diffTime: time - data[data.length - 1].time,
+                diffY: 0
+            })
+        } else {
+            // A new scroll data point
+            countSinceLastScroll = 0;
+            data.push(lastScrollEvent);
+            // Make yExtent always equal and opposite, so zero is at the center
+            const max = d3.max([...yExtent, lastScrollEvent.diffY].map(Math.abs))
+            yExtent[0] = max * -1;
+            yExtent[1] = max;
+            lastAdded = lastScrollEvent;
+        }
+
+        if (countSinceLastScroll > numPoints) {
+            yExtent[0] = 0;
+            yExtent[1] = 0;
+        }
+        const svg = AreaChart(data, {
+            height: 120,
+            width: 360,
+            marginLeft: 80,
+            x: (d) => d.time,
+            y: (d) => d.diffY,
+            yDomain: [yExtent[0] - 10, yExtent[1] + 10],
+            yFormat: d3.format(".0f"),
+            yLabel: "Pixels scrolled",
+            xLabel: "Seconds"
+        });
+        div.node().innerHTML = null;
+        div.node().append(svg);
+
+        setTimeout(() => requestAnimationFrame(update), 1000 / period);
+    }
+
+    update();
+</script>
+
+<div cpnt-scrolling-chart>
+    Loading scrolling chart&hellip;⏳
+</div>
+
+<div md>
+Hey how about a little fun? See how many jumping jacks you can do!
+<button onclick="window.popout(document.querySelector('[cpnt-jumping-jacks]'))">⇱</button>
+</div>
+
+<div cpnt-jumping-jacks>
+</div>
+
+<script type="module">
+    const target = document.querySelector('[cpnt-jumping-jacks]')
+    // From https://stackoverflow.com/a/2450976/1037165
+    function shuffle(array) {
+        let currentIndex = array.length, randomIndex;
+
+        // While there remain elements to shuffle.
+        while (currentIndex != 0) {
+
+            // Pick a remaining element.
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+
+            // And swap it with the current element.
+            [array[currentIndex], array[randomIndex]] = [
+                array[randomIndex], array[currentIndex]];
+        }
+
+        return array;
+    }
+    let jumpingJacksBarks = shuffle(["Nice", "You got this", "Chin up!", "Not even breaking a sweat"]);
+    let jumpingJacksBarkIndex = 0;
+    let jumpingJacks = 0;
+    let direction = "up";
+    let bark = '';
+    let buffer = 50; // px
+    let barkFront = Math.random() > 0.5;;
+    requestAnimationFrame(function update() {
+        const { lastScrollEvent } = window.state;
+        if (lastScrollEvent !== null) {
+            if (direction == "up" && lastScrollEvent.scrollY < buffer) {
+                direction = "down";
+                const rating = jumpingJacksBarkIndex / jumpingJacksBarks.length
+                const challenge = (4 + 5 * rating) / 10;
+                if (Math.random() > challenge) jumpingJacksBarkIndex += 1;
+                if (jumpingJacksBarkIndex >= jumpingJacksBarks.length) jumpingJacksBarkIndex = 0;
+                bark = jumpingJacks > 0 ? `<code>${jumpingJacksBarks[jumpingJacksBarkIndex]}</code>` : '';
+                barkFront = Math.random() > 0.5;
+            } else if (direction == "down" && lastScrollEvent.scrollY > window.getScrollBottom() - buffer){
+                direction = "up"
+                jumpingJacks++;
+            }
+
+            target.innerHTML = `${barkFront ? bark + ' ' : ''}Jumping jacks: ${jumpingJacks}${!barkFront ?  ' ' + bark : ''}`;
+        }
+
+        setTimeout(() => requestAnimationFrame(update), 16);
+    })
+</script>
+
+<div md id="a-dev-setup">
+## Dev Setup and Process
+
+The HTML page source contains most of the HTML, JS, and CSS of the experiment,
+with links in there to a few external resources.
+You can
+<a href="https://firefox-source-docs.mozilla.org/devtools-user/view_source/index.html" target="_blank">
+    View Source</a>
+to check it out.
+
+You can also
+<a href="https://github.com/reedspool/reeds-website/tree/main/app/site/public/scroll" target="_blank">
+    view it on GitHub
+</a>.
+
+While I code, I use
+<a href="https://www.npmjs.com/package/live-server" target="_blank">
+    <code>live-server</code></a>
+to automatically reload the page when I save my file edits. The default port
+without the `--port=<number>` option is `8080` but I use a different one because
+that one's already in use on my machine.
+
+```sh
+$ npx live-server --port=31415
+```
+
+While I code, I also disable any automatic formatting upon file save. The weird
+formatting of markdown blocks (all aligned to the left) is due to how Markdown-Tag
+does not consider its parent element's alignment when parsing markdown. So if
+the contents of those elements were aligned "correctly", i.e. everything within
+the element being tabbed/spaced to the right of the element's tags, then
+everything within those elements would be code blocks to the Markdown parser.
+
+Code is often close to its first usage, in nearby `script`'s.
+Code is also often lounging in no particular order.
+</div>
+
+<div md id="a-styling">
+## Styling
+
+You'll notice there's only one scrollbar on the page. That's so I don't get
+"caught" scrolling in a smaller area when I'm trying to test the scrolling of
+the larger area.
+
+You can
+<button onclick="document.querySelector('html').toggleAttribute('dark-mode')">
+    toggle between light and dark mode
+</button>.
+
+Below is this page's stylesheet which you can edit thanks to a neat
+<a href="https://css-tricks.com/show-and-edit-style-element/" target="_blank">
+    <code>contenteditable</code>
+trick</a>. Click on "CSS" below to open it up.
+Your changes are not saved, so
+<button onclick="location.reload()">refresh the page ↻</button> to reset.
+
+Let me know if you find any interesting styles.
+</div>
+
+<details><summary>CSS</summary>
+<style type="text/css" media="screen" display contenteditable="true">html {
+    height: 100%;
+    --light-bg: #fbf1c7;
+    --light-fg: #282828;
+    --dark-bg: #212337;
+    --dark-fg: #c8d3f5;
+    --bg: var(--light-bg);
+    --fg: var(--light-fg);
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
+    line-height: 1.6em;
+}
+
+html[dark-mode] {
+    --bg: var(--dark-bg);
+    --fg: var(--dark-fg);
+}
+
+html[dark-mode] a {
+    color: cornflowerblue;
+}
+
+html[dark-mode] a:visited {
+    color: mediumpurple;
+}
+
+body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1rem auto;
+    max-width: min(100%, 600px);
+    padding: 1rem;
+    padding-top: 3rem;
+}
+
+button, a, details summary {
+    cursor: pointer;
+}
+
+button {
+    background-color: var(--fg);
+    color: var(--bg);
+    border: none;
+    display: inline-block;
+    border-radius: 0.25em;
+    padding-block-start: 2px;
+    padding-block-end: 4px;
+    padding-inline: 6px;
+    margin-inline: 0.2em;
+ }
+
+details {
+    display: block;
+    position: relative;
+    width: 100%;
+    padding: 0em;
+}
+
+details summary {
+    padding-inline: 1em;
+    padding-block: 1em;
+    background-color: transparent;
+    color: var(--fg);
+    border-bottom: 1px solid currentColor;
+ }
+
+style[display] {
+    display: block;
+    font-family: monospace;
+    white-space: pre-wrap;
+    padding-inline: 2rem;
+    padding-block: 2rem;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+html[dark-mode] style[display] {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+[cpnt-fps] {
+    display: flex;
+    flex-direction: flex-row;
+    gap: 1rem;
+    align-items: center;
+}
+[cpnt-popout] {
+    max-width: max-content;
+    min-width: 10em;
+    position: fixed;
+    z-index: 500;
+    top: 0;
+    left: 0;
+    background-color: var(--bg);
+    border-right: 0.1em solid currentColor;
+    border-bottom: 0.1em solid currentColor;
+}
+
+[cpnt-popout__target] {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+[cpnt-popout__target]:empty {
+    padding: 0rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+[cpnt-popout__entry] {
+    padding: 0rem;
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+}
+</style>
+</details>
+
+
+<script type="module">
+    window.insertLorem = async function () {
+        const response = await fetch('lorem.txt')
+        if (! response.ok) throw new Error("Failed to fetch lorem")
+        const text = await response.text();
+        const backButton = `<p><a href="#">Back to Top &#8593;</a></p>`
+        const html = text.split(/\n+/).map(lorem => `${backButton}<p>${lorem}</p>`).join('');
+        const target = document.querySelector('#a-lorem');
+        const container = document.createElement('p')
+        container.innerHTML = html;
+        target.after(container);
+    }
+</script>
+
+<div md id="a-lorem">
+## Endless Filler Text
+
+Sometimes it's useful to have a large page to scroll through.
+
+<button onclick="window.insertLorem()">Insert a ton of text 🕮</button> into this page for more scroll area.
+</div>
+
+<div md id="a-scroll-linked-css-animations">
+# Experimental Spec: Scroll-Linked CSS Animations
+
+Honorable mention for a CSS spec which has been experimental for years but works
+pretty well: "Scroll-linked animations." Check out this
+<a href="https://css-tricks.com/practical-use-cases-for-scroll-linked-animations-in-css-with-scroll-timelines/" target="_blank">
+    CSS Tricks article</a>.
+
+`tl;dr:` This spec allows scrollbars on the page to act as scrubbers for the
+timelines of CSS animations. The more we can offload to CSS, the more
+performant our animations will be. When compared to CSS, JavaScript is suboptimal
+for animation.
+
+Thank you to an early reviewer of this work for pointing me towards the spec!
+</div>
+
+<div md id="a-bottom">
+You reached the bottom of the page. <p><a href="#">Want a ride back to the top? &#8593;</a></p>
+</div>
+
+
+</body>
+
+</html>
