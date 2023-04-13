@@ -1,9 +1,10 @@
 import type { AddendaData } from "./types";
 import { marked } from 'marked';
+import { Map } from "./Map";
 
 export const Addenda: React.FC<{ addenda: AddendaData }> = ({ addenda }) =>
     <ul className="list-none flex flex-col gap-lg my-md p-0">
-        {addenda.map((props) => AddendaItem(props))}
+        <Map From={addenda} To={AddendaItem} />
     </ul>
 
 
