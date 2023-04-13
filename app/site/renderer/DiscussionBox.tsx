@@ -1,6 +1,7 @@
 import { Show } from "./Show"
 import { Link } from "./Link"
 export const DiscussionBox: React.FC<{ discussionUrl: string }> = ({ discussionUrl }) =>
+(
     <div className="cpnt-discussion-box layout-popout bg-flashybg px-lg py-lg flex flex-col gap-md rounded-2xl my-md"
         data-script="init set $discussionBox to me"
     >
@@ -32,3 +33,5 @@ export const DiscussionBox: React.FC<{ discussionUrl: string }> = ({ discussionU
             </p>
         </Show>
     </div>
+
+)

@@ -729,6 +729,264 @@ Hey how about a little fun? See how many jumping jacks you can do!
     })
 </script>
 
+<div md id="a-noise">
+## Noise
+
+Let's turn away from scroll for a moment to another topic, noise.
+
+Noise is powerful. Noise is a lifelong enemy for data scientists and
+crotchety people who read newspapers. But noise is also natural and beautiful.
+Many people fall softly asleep to a lullaby of city or ocean noise, and many
+others simulate it with noise machines.
+
+You're most familiar with sound noise, but noise happens anywhere there is
+information transmitted. It's the "other stuff" that happens around the information
+we're looking for. Static on a radio station is noise, but so is a typo in an
+article, a shining light in the background of a landscape photo, or even a fly
+in your otherwise instagrammable soup.
+
+As a general topic, the qualities of noise are hard to describe. Sometimes we
+describe noise as random. Often its unwanted, distracting from the information
+we want, the "signal".
+
+Here's some ugly random noise. Note that it's merely
+<a href="https://en.wikipedia.org/wiki/Pseudorandomness" target="_blank">
+    random enough</a> as it uses
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random" target="_blank">
+    <code>Math.random()</code></a>.
+Every pixel in this image has a 50% chance to be dark or light.
+
+You can
+<button onclick="window.popout(document.querySelector('[cpnt-random-static]'))">
+    pop out ⇱
+</button>
+the chart, though this one is static until you reload the page.
+</div>
+
+<div cpnt-random-static>
+    <canvas height=75></canvas>
+</div>
+
+<script type="module">
+    const target = document.querySelector('[cpnt-random-static]')
+    const canvas = target.querySelector('canvas')
+    const context = canvas.getContext('2d')
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    window.fillImageDataDataWithRandomGrayscale = function (data) {
+        for (let i = 0; i < data.length; i += 4) {
+            const value = Math.random() * 255;
+            data[i + 0] = value; // R value
+            data[i + 1] = value; // G value
+            data[i + 2] = value; // B value
+            data[i + 3] = 255;   // A value
+        }
+    }
+
+    window.fillImageDataDataWithRandomGrayscale(imageData.data);
+    context.putImageData(imageData, 0, 0);
+</script>
+
+<div md>
+Here's the same thing but random on every frame.
+<button onclick="window.popout(document.querySelector('[cpnt-random-static-animated]'))">
+    ⇱</button>
+</div>
+
+<div cpnt-random-static-animated>
+    <canvas height=75></canvas>
+</div>
+
+<script type="module">
+    const target = document.querySelector('[cpnt-random-static-animated]')
+    const canvas = target.querySelector('canvas')
+    const context = canvas.getContext('2d')
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+    requestAnimationFrame(function loop() {
+        window.fillImageDataDataWithRandomGrayscale(imageData.data);
+        context.putImageData(imageData, 0, 0);
+        requestAnimationFrame(loop);
+    });
+</script>
+
+<div md>
+And again, but with some color
+<button onclick="window.popout(document.querySelector('[cpnt-random-static-animated-color]'))">
+    ⇱</button>
+</div>
+
+<div cpnt-random-static-animated-color>
+    <canvas height=75></canvas>
+</div>
+
+<script type="module">
+    const target = document.querySelector('[cpnt-random-static-animated-color]')
+    const canvas = target.querySelector('canvas')
+    const context = canvas.getContext('2d')
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+    requestAnimationFrame(function loop() {
+        for (let i = 0; i < imageData.data.length; i += 4) {
+            imageData.data[i + 0] = Math.random() * 255; // R value
+            imageData.data[i + 1] = Math.random() * 255; // G value
+            imageData.data[i + 2] = Math.random() * 255; // B value
+            imageData.data[i + 3] = 255;                 // A value
+        }
+
+        context.putImageData(imageData, 0, 0);
+        requestAnimationFrame(loop);
+    });
+</script>
+
+<div md>
+But I don't want random noise. I'm searching for a noise
+which feels specific, natural. I want noise which reminds me I'm alive and that
+nothing is perfect or immortal.
+
+Ken Perlin had a similar goal when he worked on the computer-generated visuals
+for Tron (1982). So he developed
+<a href="https://en.wikipedia.org/wiki/Perlin_noise" target="_blank">
+    Perlin noise</a> and its improved ancestor
+<a href="https://en.wikipedia.org/wiki/Simplex_noise" target="_blank">
+    Simplex noise</a> (2001). More recently (2014),
+<a href="https://noiseposti.ng/" target="_blank">a smart person</a> who goes by
+<a href="https://www.reddit.com/user/KdotJPG/" target="_blank">KdotJPG</a>
+created an improved and patent-free successor named
+<a href="https://uniblock.tumblr.com/post/97868843242/noise" target="_blank">
+    OpenSimplex noise</a>.
+Then Josh Forisha made
+<a href="https://github.com/joshforisha/open-simplex-noise-js" target="_blank">
+    a TypeScript version</a>.
+This brief lineage is only one sliver of the fuzzy fractal history of generative
+noise, but it's the particular
+<a href="https://www.youtube.com/watch?v=ZI1dmHv3MeM" target="_blank">
+Coding Train</a>
+that I'm on now.
+
+Enough history, I have a present for you. Let's make some noise.
+<button onclick="window.popout(document.querySelector('[cpnt-simplex-noise-animated]'))">
+    ⇱
+</button>
+</div>
+
+<div cpnt-simplex-noise-animated>
+    <canvas height="75"></canvas>
+</div>
+
+<script type="module">
+    import FastNoise from "https://cdn.jsdelivr.net/npm/fastnoise-lite@0.0.1/FastNoiseLite.js"
+    const target = document.querySelector('[cpnt-simplex-noise-animated]')
+    const canvas = target.querySelector('canvas')
+    const context = canvas.getContext('2d')
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+    const noise = new FastNoise();
+    noise.SetSeed(Math.floor(Math.random() * 10000))
+    noise.SetNoiseType(FastNoise.NoiseType.OpenSimplex2S)
+    noise.SetFrequency(0.03)
+    noise.SetRotationType3D(FastNoise.RotationType3D.ImproveXYPlanes)
+
+    window.fillImageDataDataWithNoiseAtTimeGrayscale = function (data, noise, time) {
+        for (let row = 0; row < canvas.height; row++) {
+            for (let column = 0; column < canvas.width; column++) {
+                const i = 4 * (column + row * canvas.width);
+                const value = noise.GetNoise(column, row, time) * 255;
+                data[i + 0] = value; // R value
+                data[i + 1] = value; // G value
+                data[i + 2] = value; // B value
+                data[i + 3] = 255;   // A value
+            }
+        }
+    }
+
+    requestAnimationFrame(function loop(time) {
+        window.fillImageDataDataWithNoiseAtTimeGrayscale(imageData.data, noise, time / 10);
+        context.putImageData(imageData, 0, 0);
+        requestAnimationFrame(loop);
+    });
+</script>
+
+<div md>
+The noise feels like it has some logic behind its motion as if there is a
+complex geometry that dictates the flow. At the same time, the logic
+is so complex that it feels random.
+
+Yet it still has some amorphous shape to it like the surface of a texture in nature.
+Perhaps it's a small section of a big pool; the ripples are from some
+<a href="https://www.youtube.com/watch?v=P9FRxokO2so" target="_blank">
+waders</a>
+and
+<a href="https://www.youtube.com/watch?v=6k01DIVDJlY" target="_blank">
+bobbers</a>.
+
+A slice of the noise frozen in time sits below. Could be the fuzzy image of an
+extra-terrestrial spectrogram. Or the shape of metal after a thousand hammer
+whacks. Maybe the ambiguity is for you to interpret. Could represent
+<a href="https://www.youtube.com/watch?v=7gi1eT7HvtM" target="_blank">
+all of society's problems</a> or how much you love
+<a href="https://en.wikipedia.org/wiki/Rorschach_test#Inkblots" target="_blank">
+your mom</a>.
+<button onclick="window.popout(document.querySelector('[cpnt-simplex-noise-static]'))">
+    ⇱
+</button>
+</div>
+
+<div cpnt-simplex-noise-static>
+    <canvas height="75"></canvas>
+</div>
+
+<script type="module">
+    import FastNoise from "https://cdn.jsdelivr.net/npm/fastnoise-lite@0.0.1/FastNoiseLite.js"
+    const target = document.querySelector('[cpnt-simplex-noise-static]')
+    const canvas = target.querySelector('canvas')
+    const context = canvas.getContext('2d')
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+    const noise = new FastNoise();
+    noise.SetSeed(Math.floor(Math.random() * 10000))
+    noise.SetNoiseType(FastNoise.NoiseType.OpenSimplex2S)
+    noise.SetFrequency(0.03)
+    noise.SetRotationType3D(FastNoise.RotationType3D.ImproveXYPlanes)
+
+    window.fillImageDataDataWithNoiseAtTimeGrayscale(imageData.data, noise, Math.floor(Math.random() * 10000));
+    context.putImageData(imageData, 0, 0);
+</script>
+
+<div md>
+You've probably wondered by now, what does noise have to do with scroll?
+
+Think of your favorite room. According to
+<a href="https://en.wikipedia.org/wiki/Impermanence#Western_philosophy" target="_blank">
+some ancient dude</a>,
+that room is different every time you step in. The sunlight's angle slides subtly.
+The floor slowly wears and tears. You might not notice those small changes, but
+they flavor your experience anyway.
+
+Now think of
+<a href="https://www.cameronsworld.net/" target="_blank">
+your favorite website</a>.
+It's likely the same every time you load it. The fonts are the same. The colors
+chosen by the designer are repeated on every visit, no matter the angle of the sun.
+
+I thought about TikTok or Twitter where the human posts provide human
+variation. But the corporate font, color, layout, and icons are the same every
+time you refresh. Even
+<a href="https://www.versionmuseum.com/history-of/facebook-website" target="_blank">
+annual updates</a> bring few variations.
+
+I wondered, can I make a website which is different all the time? A room
+or a cornfield or a river are slightly and constantly shifting. And I want my
+website to do something similar.
+
+When I considered how to do that, I thought it would take a lot of JavaScript.
+And a lot of JavaScript made me fear that scrolling would be sluggish. That's it.
+And so I started making some tools to measure effectiveness at scrolling.
+
+This page used to be quite snappy. But now that I've added all this noise, it
+does a lot of computation and feels more sluggish. My next investigation will
+be how to make the page more performant, if I ever come back to this.
+</div>
+
 <div md id="a-dev-setup">
 ## Dev Setup and Process
 
