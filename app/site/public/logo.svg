@@ -11,4 +11,5 @@
             </g>
         </g>
     </symbol>
+    <use href="#symLogo" stroke="black" x="0" y="0" width="32" height="32" />
 </svg>

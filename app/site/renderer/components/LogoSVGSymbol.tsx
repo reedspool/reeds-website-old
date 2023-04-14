@@ -1,9 +1,6 @@
 export const LogoSVG: React.FC<{ className?: string }> = ({ className = '' }) =>
     <svg className={`cpnt-logo ${className}`}>
-        <use
-            xlinkHref="#symLogo"
-            x="0"
-            y="0" />
+        <use href="#symLogo" x="0" y="0" />
     </svg>
 
 export const LogoSVGSymbol: React.FC = () =>
