@@ -1,6 +1,6 @@
 import ReactDOMServer from 'react-dom/server'
-import { PageShell } from './PageShell'
-import { DefaultLayout } from './DefaultLayout'
+import { PageShell } from './components/PageShell'
+import { DefaultLayout } from './components/DefaultLayout'
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
 import { pages } from "./../pages/getBlogPages";
 /* import { pages } from "./../pages/manualBlogPages"; */

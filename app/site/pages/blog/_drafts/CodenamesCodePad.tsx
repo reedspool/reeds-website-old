@@ -1,5 +1,5 @@
 import { FC, Fragment, PropsWithChildren } from "react";
-import { Show } from "../../../renderer/Show";
+import { Show } from "../../../renderer/components/Show";
 import { pickRandomWords, WordList } from "./CodenamesWordList";
 import { ScriptTag } from "./Hyperscript";
 import { integerRange } from "./IsomorphicUtilities";

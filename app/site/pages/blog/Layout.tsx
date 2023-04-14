@@ -1,12 +1,12 @@
 import { BlogFrontMatter } from "./BlogFrontMatter"
-import { BlogArticle } from "../../renderer/BlogArticle"
-import { CommentWidget } from "../../renderer/CommentWidget"
-import { Addenda } from "../../renderer/Addenda"
-import { DiscussionBox } from "../../renderer/DiscussionBox"
+import { BlogArticle } from "../../renderer/components/BlogArticle"
+import { CommentWidget } from "../../renderer/components/CommentWidget"
+import { Addenda } from "../../renderer/components/Addenda"
+import { DiscussionBox } from "../../renderer/components/DiscussionBox"
 
 import { PageContextExportDocumentProps, PageLayout } from "../../renderer/types"
 import { Case, Switch } from "./SwitchCase"
-import { Show } from "../../renderer/Show"
+import { Show } from "../../renderer/components/Show"
 import { ReactElement } from "react"
 
 export const RenderAll: React.FC<{ all: Array<ReactElement> }> = ({ all }) => <>{all}</>
