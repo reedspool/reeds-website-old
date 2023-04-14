@@ -8,6 +8,7 @@ import { PageContextExportDocumentProps, PageLayout } from "../../renderer/types
 import { Case, Switch } from "./SwitchCase"
 import { Show } from "../../renderer/components/Show"
 import { ReactElement } from "react"
+import { Layout as ParentLayout } from "../_default.page"
 
 export const RenderAll: React.FC<{ all: Array<ReactElement> }> = ({ all }) => <>{all}</>
 
@@ -59,7 +60,7 @@ export const Layout: PageLayout<PageContextExportDocumentProps> = ({ children, t
             // Otherwise its publishing was its last update
             : publishDate;
 
-    return <>
+    return <ParentLayout>
         <h1 className="mt-md">{title}</h1>
         <BlogFrontMatter
             publishDate={publishDate}
@@ -86,6 +87,6 @@ export const Layout: PageLayout<PageContextExportDocumentProps> = ({ children, t
             </Case>
         </Switch>
         <CommentWidget />
-    </>
+    </ParentLayout>
 
 }

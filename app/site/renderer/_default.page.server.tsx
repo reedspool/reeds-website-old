@@ -6,13 +6,7 @@ import { pages } from "./../pages/getBlogPages";
 /* import { pages } from "./../pages/manualBlogPages"; */
 // @ts-ignore
 import logoUrl from '../public/logo.svg'
-// @ts-ignore
-import cssContent from './style.css'
 import type { PageContextServer, PageLayout } from './types'
-
-// Simply reference CSS to prevent tree-shaking. As long as this isn't removed
-// via tree shaking, vite will see it and include a link to it in the HTML
-cssContent
 
 // See https://vite-plugin-ssr.com/data-fetching
 export const passToClient = ['pageProps', 'urlPathname']

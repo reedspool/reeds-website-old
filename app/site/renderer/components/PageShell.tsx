@@ -1,12 +1,6 @@
 import React, { FC, PropsWithChildren } from 'react'
-import { LogoSVGSymbol } from "./LogoSVGSymbol"
-import { GlobalHeader } from "./GlobalHeader"
-import { GlobalFooter } from "./GlobalFooter"
 
+// This is an empty shell right now but its a place to do React things for
+// every page on the site, unlike DefaultLayout which can be overridden
 export const PageShell: FC<PropsWithChildren> = ({ children }) =>
-    <React.StrictMode>
-        <LogoSVGSymbol />
-        <GlobalHeader />
-        {children}
-        <GlobalFooter />
-    </React.StrictMode>
+    <React.StrictMode> {children} </React.StrictMode>
