@@ -1,11 +1,5 @@
 import { FC, PropsWithChildren } from "react";
 
-
-export const bindProps =
-    (fn: React.FC<any>, boundProps: any) =>
-        (props: any, ...rest: any) =>
-            fn({ ...boundProps, ...props }, ...rest);
-
 // TODO: Better name would be "Script-Object"
 export const Script: FC<PropsWithChildren<{
     Wrapper?: WrapperType
