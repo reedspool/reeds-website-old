@@ -1047,7 +1047,9 @@ Let me know if you find any interesting styles.
 </div>
 
 <details><summary>CSS</summary>
-<style type="text/css" media="screen" display contenteditable="true">html {
+<style type="text/css" media="screen" display contenteditable="true">@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch&family=Jost&display=swap");
+
+html {
     height: 100%;
     --light-bg: #fbf1c7;
     --light-fg: #282828;
@@ -1057,9 +1059,16 @@ Let me know if you find any interesting styles.
     --fg: var(--light-fg);
     background-color: var(--bg);
     color: var(--fg);
-    font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: "Jost", sans-serif;
+    font-size: 20px;
     line-height: 1.6em;
 }
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+    line-height: 1.2em;
+}
+
 
 html[dark-mode] {
     --bg: var(--dark-bg);

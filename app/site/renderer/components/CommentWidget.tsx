@@ -16,7 +16,7 @@ export const CommentWidget: React.FC = () =>
                      hide me
             `}
         >Leave a Private Note</button>
-        <div className="cpnt-comment cpnt-blog-article bg-flashybg px-lg py-sm flex flex-col gap-md rounded-2xl my-md " style={{ display: "none" }}
+        <div className="cpnt-comment cpnt-blog-article bg-flashybg text-flashyfg px-lg py-sm flex flex-col gap-md my-md " style={{ display: "none" }}
             data-script={`
                     init
                        set $comment to me
@@ -49,13 +49,14 @@ export const CommentWidget: React.FC = () =>
                 className="flex justify-between justify-self-start w-full"
             >
                 Private Note
-                <button className="close-button"
+                <button className="close-button cpnt-button !bg-gray-700 !text-primarybg"
                     data-script={`on click
                                tell closest <.cpnt-comment />
                                  hide yourself
                                  trigger resetResults
                                end
                     `}
+                    aria-label="Cancel"
                 >X</button>
             </h3>
             <form
@@ -88,7 +89,7 @@ export const CommentWidget: React.FC = () =>
                     <textarea
                         name="selection"
                         id="comment-selection"
-                        className="w-full"
+                        className="w-full bg-flashybg text-flashyfg"
                     ></textarea>
                 </p>
                 <p>
@@ -96,7 +97,7 @@ export const CommentWidget: React.FC = () =>
                     <textarea
                         name="content"
                         id="comment-content"
-                        className="w-full"
+                        className="w-full bg-flashybg text-flashyfg border border-flashyfg"
                         data-script={`on resetCommentInput from closest <.cpnt-comment />
                              set my value to ''
                         `}
@@ -119,7 +120,7 @@ export const CommentWidget: React.FC = () =>
                 <p>
                     <label htmlFor="comment-contact">Contact info (optional):</label>
                     <input type="text" name="contact" value="" id="comment-contact"
-                        className="w-full"
+                        className="w-full bg-flashybg text-flashyfg border border-flashyfg"
                         data-script={`
                                 init
                                   set contact to localStorage.getItem('my-comment-contact')
@@ -135,6 +136,7 @@ export const CommentWidget: React.FC = () =>
                     <textarea
                         name="context"
                         id="comment-context"
+                        className="bg-flashybg text-flashyfg border border-flashyfg"
                     ></textarea>
                 </p>
                 <p style={{ display: "none" }}>
@@ -181,6 +183,7 @@ export const CommentWidget: React.FC = () =>
                                  tell closest <.cpnt-comment />
                                    trigger resetResults
                                    trigger resetCommentInput
+                                   hide yourself
                                    hide me
                                  end
                             `}

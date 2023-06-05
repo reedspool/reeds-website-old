@@ -2,7 +2,7 @@ import { Show } from "./Show"
 import { Link } from "./Link"
 export const DiscussionBox: React.FC<{ discussionUrl: string }> = ({ discussionUrl }) =>
 (
-    <div className="cpnt-discussion-box layout-popout bg-flashybg px-lg py-lg flex flex-col gap-md rounded-2xl my-md"
+    <div className="cpnt-discussion-box layout-popout bg-flashybg text-flashyfg px-lg py-lg flex flex-col gap-md my-md"
         data-script="init set $discussionBox to me"
     >
         <h2>Discuss</h2>

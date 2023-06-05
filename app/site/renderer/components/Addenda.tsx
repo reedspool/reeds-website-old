@@ -3,7 +3,7 @@ import { marked } from 'marked';
 import { Map } from "./Map";
 
 export const Addenda: React.FC<{ addenda: AddendaData }> = ({ addenda }) =>
-    <ul className="list-none flex flex-col gap-lg my-md p-0">
+    <ul className="list-none flex flex-col gap-md my-sm p-0">
         <Map From={addenda} To={AddendaItem} />
     </ul>
 
@@ -14,16 +14,16 @@ export const AddendaItem: React.FC<AddendaData[0]> = ({ date, content }) => {
     // https://github.com/facebook/react/issues/12014
     // we form the html content manually
     let __html = `
-        <time class="text-flashyfg text-md inline-block" datetime="${date}">
+        <time class="text-md inline-block" datetime="${date}">
             ${new Date(date).toLocaleDateString()}
         </time>
-        <div class="text-primaryfg mt-md">
+        <div class="mt-sm">
             ${marked.parse(content.trim())}
         </div>
     `.trim();
 
     return (
-        <li className="rounded-md p-md bg-flashyfg/20"
+        <li className="px-md"
             dangerouslySetInnerHTML={{ __html }}></li>
     )
 }

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch&family=Jost&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Jost&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,15 +7,15 @@
 
 html {
   font-size: 20px;
-  line-height: 1.85em;
+  line-height: 1.65em;
   height: 100%;
 
-  --primaryfg-rgb: 39 22 22;
-  --primarybg-rgb: 227 237 243;
-  --flashyfg-rgb: 26 108 40;
-  --flashybg-rgb: 200 213 212;
+  --primaryfg-rgb: 40 40 40;
+  --primarybg-rgb: 251 241 199;
+  --flashyfg-rgb: 200 211 245;
+  --flashybg-rgb: 33 35 55;
 
-  --flashy-font: "Chakra Petch", sans-serif;
+  --flashy-font: "Jost", sans-serif;
   --prose-font: "Jost", sans-serif;
 
   @apply flex flex-col items-center;
@@ -246,12 +246,12 @@ a:hover .cpnt-logo {
   & p,
   & ul,
   & ol {
-    @apply my-lg;
+    @apply mb-lg;
     @apply no-boost;
   }
 
   & blockquote {
-    @apply layout-popout m-0 p-xl;
+    @apply layout-popout m-0 mb-lg p-xl;
 
     & p {
       @apply mb-0 mx-0 mt-md p-0;
@@ -309,9 +309,9 @@ a:hover .cpnt-logo {
 }
 
 .cpnt-button {
-  @apply rounded-md py-xs px-md tracking-widest;
+  @apply py-xs px-md tracking-widest;
 
-  @apply text-primarybg bg-flashyfg;
+  @apply text-flashybg bg-flashyfg;
 }
 
 .cpnt-codenames-codepad {
