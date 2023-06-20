@@ -21,3 +21,6 @@ dist/
 
 # Netlify build stuff
 .netlify/
+
+# Syncthing
+.stignore
