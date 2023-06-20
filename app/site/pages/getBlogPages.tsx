@@ -45,8 +45,8 @@ export const renderDraftFiles: () => Promise<Array<Promise<PageBlogStuff>>> = as
         .map(
             async (fileName) => {
                 const urlName = extractUrlName(fileName);
-                const { documentProps } = await importDraft(urlName);
-                documentProps.title = `[DRAFT] ${documentProps.title}`
+                const { documentProps = {} } = await importDraft(urlName);
+                documentProps.title = `[DRAFT] ${documentProps?.title ?? `Untitled Draft (${fileName})`}`
                 const publishJSDate = new Date(documentProps.publishDate);
                 return {
                     fileName, urlName, documentProps, publishJSDate
