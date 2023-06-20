@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --card-width: 4rem;
+    --card-aspect: 1/1.3;
+}
+.card {
+    --width: var(--card-width);
+    width: var(--width);
+    aspect-ratio: var(--card-aspect);
+    /* Make font-size same as height so that em are proportional to heigth*/
+    font-size: calc(var(--width) * 1.3);
+    @apply
+        rounded-xl
+        bg-slate-400
+        text-yellow-100
+        p-2
+    ;
+
+    z-index: 9999;
+
+    & .card__body {
+        @apply bg-slate-900 w-full h-full
+            p-2
+            rounded-sm
+        ;
+    }
+
+    & .value {
+        font-size: 0.5em;
+        @apply h-full w-full
+            flex flex-col
+            justify-center items-end;
+    }
+}
+
+.target {
+    --padding: 1rem;
+    --width: calc(var(--card-width) + (2 * var(--padding)));
+    width: var(--width);
+    aspect-ratio: var(--card-aspect);
+    padding: var(--padding);
+    @apply bg-yellow-200 relative;
+
+    &--active {
+        @apply bg-green-800;
+    }
+
+    &--active .target__body {
+        @apply bg-green-800;
+    }
+
+    & .target__body {
+        @apply bg-yellow-500;
+        @apply h-full w-full;
+    }
+}
+
+.liftable {
+    --liftable-duration: 33ms;
+    --drag-dx: 0px;
+    --drag-dy: 0px;
+    --lift-dx: 0px;
+    --lift-dy: 0px;
+    user-select: none;
+    touch-action: none;
+    /* From https://stackoverflow.com/a/25704651 */
+    -webkit-tap-highlight-color:  rgba(255, 255, 255, 0);
+
+    @apply cursor-pointer relative;
+
+    transform:
+        translate(
+            calc(var(--drag-dx) + var(--lift-dx)),
+            calc(var(--drag-dy) + var(--lift-dy)));
+
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.2);
+    transition:
+        transform ease var(--liftable-duration),
+        box-shadow ease var(--liftable-duration);
+
+    &.lifted {
+        --lift-dx: -1px;
+        --lift-dy: -2px;
+        box-shadow: calc(-2 * var(--lift-dx)) calc(-2 * var(--lift-dy)) 7px 2px rgba(0, 0, 0, 0.4);
+        @apply cursor-grab;
+    }
+}
