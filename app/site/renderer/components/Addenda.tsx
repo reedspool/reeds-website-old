@@ -1,4 +1,4 @@
-import type { AddendaData } from "./types";
+import type { AddendaData } from "../types";
 import { marked } from 'marked';
 import { Map } from "./Map";
 
