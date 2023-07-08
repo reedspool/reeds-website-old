@@ -12,7 +12,7 @@ export const OutlineHeading: FC<PropsWithChildren<OutlineCalloutProps>> =
 export const Editorial =
     bindProps(OutlineHeading, { title: "Editorial" })
 
-const hsToggleOutline = (show) => `
+const hsToggleOutline = (show: OutlineControlProps["show"]) => `
 ${show && `
     init
         trigger click
